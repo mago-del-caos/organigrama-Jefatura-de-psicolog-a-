@@ -6,29 +6,29 @@
     <title>Organigrama Jefatura LAD | UNRC</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <!-- Tipografías oficiales UNRC (Noto Sans y respaldo para Patria) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Librería para descargar el organigrama en PNG de forma segura -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 </head>
 <body>
     <header>
         <div class="header-content">
-            <img src="logo.png" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
+            <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
             <div class="title-container">
-                <img src="logo.png" alt="Logo UNRC" class="title-logo mobile-logo" onerror="this.style.display='none'">
+                <img src="logo.jpeg" alt="Logo UNRC" class="title-logo mobile-logo" onerror="this.style.display='none'">
                 <h1>Jefatura LAD</h1>
                 <p class="subtitle">Universidad Nacional Rosario Castellanos</p>
             </div>
-            <img src="logo.png" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
+            <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
         </div>
         
-        <!-- Sistema de Pestañas -->
         <nav class="tabs">
-            <button class="tab-btn active" onclick="showTab('org-tab')">Organigrama</button>
-            <button class="tab-btn" onclick="showTab('info-tab')">Envío de Información</button>
+            <button class="tab-btn active" onclick="showTab('org-tab', event)">Organigrama</button>
+            <button class="tab-btn" onclick="showTab('info-tab', event)">Flujo de Información</button>
         </nav>
     </header>
 
@@ -37,44 +37,41 @@
         <div class="controls">
             <button id="toggle-orientation" class="action-btn">↳ Cambiar Vista</button>
             <button id="download-png" class="action-btn">🖼️ Descargar PNG</button>
-            <button id="print-btn" class="action-btn">🖨️ Imprimir</button>
             <span class="hint">Arrastra para mover, rueda para zoom, clic en nodos para expandir.</span>
         </div>
         <div id="tree-container"></div>
     </main>
 
-    <!-- Pestaña 2: Pasos para envío de información -->
+    <!-- Pestaña 2: Flujo de Información -->
     <main id="info-tab" class="tab-content">
         <div class="info-container">
-            <h2><span class="step-icon">📌</span> Pasos para enviar información de una persona a otra</h2>
-            <p>Para asegurar una comunicación eficiente y el resguardo de datos dentro de la Jefatura, sigue este protocolo:</p>
+            <h2>Flujo de Información</h2>
+            <p>Selecciona el origen y el destino para calcular la ruta de comunicación y el número de personas entre ellos.</p>
             
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3>Identificar al Receptor</h3>
-                    <p>Verifica en el organigrama el nombre y el cargo exacto de la persona a quien va dirigida la información.</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="origen">Origen (¿Quién envía?)</label>
+                    <select id="origen" class="custom-select"></select>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3>Redactar el Mensaje</h3>
-                    <p>Utiliza el correo institucional. Asunto claro y redacción directa. Evita adjuntos innecesarios.</p>
+                <div class="form-arrow">➔</div>
+                <div class="form-group">
+                    <label for="destino">Fin (¿Quién recibe?)</label>
+                    <select id="destino" class="custom-select"></select>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3>Clasificar la Información</h3>
-                    <p>Si contiene datos sensibles o académicos, asegúrate de cifrar el documento o usar los canales oficiales de la UNRC.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <h3>Enviar y Confirmar</h3>
-                    <p>Envía el mensaje y solicita una confirmación de lectura (acuse de recibo) para asegurar que llegó a destino.</p>
+            </div>
+
+            <button id="calc-ruta" class="action-btn" style="margin-top: 20px;">Calcular Ruta</button>
+
+            <div id="resultado-flujo" class="result-card hidden">
+                <h3>Resultado del Flujo</h3>
+                <p id="personas-entre" class="big-text"></p>
+                <div class="flow-path-container">
+                    <p id="ruta-flujo" class="flow-path"></p>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Botón Flotante PWA -->
     <button id="install-btn" class="fab hidden" title="Descargar Aplicación">
         📥 Descargar App
     </button>
