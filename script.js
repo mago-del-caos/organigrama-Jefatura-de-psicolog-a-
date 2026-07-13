@@ -160,7 +160,6 @@ document.getElementById('download-png').addEventListener('click', (e) => {
         })
         .catch(function (error) {
             console.error('Error al descargar:', error);
-            alert('Hubo un error al generar la imagen.');
         });
 });
 
@@ -203,9 +202,9 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
             const nextDepth = path[index + 1].depth;
             let arrow = "➔"; 
             if (nextDepth < currDepth) {
-                arrow = "⬆️"; // Sube
+                arrow = "⬆️"; 
             } else if (nextDepth > currDepth) {
-                arrow = "⬇️"; // Baja
+                arrow = "⬇️"; 
             }
             flowHTML += `<span class="arrow">${arrow}</span>`;
         }
@@ -221,9 +220,8 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     document.getElementById('resultado-flujo').classList.remove('hidden');
 });
 
-// 5. MODO OSCURO (Lógica corregida)
+// 5. MODO OSCURO
 const darkModeToggle = document.getElementById('dark-mode-toggle');
-// Aplicar preferencia guardada al cargar
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     darkModeToggle.textContent = '☀️ Modo Claro';
@@ -239,23 +237,38 @@ darkModeToggle.addEventListener('click', (e) => {
     }
 });
 
-// 6. PWA LÓGICA (Botón siempre interactivo)
+// 6. PWA LÓGICA (Con contador de intentos)
 let deferredPrompt;
+let installAttempts = 0; // Contador de intentos de descarga
 const installBtn = document.getElementById('install-btn');
+
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
     deferredPrompt = e; 
 });
+
 installBtn.addEventListener('click', async () => {
+    let installed = false;
+    
     if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        if (outcome !== 'accepted') {
-            alert("Si no se abrió el cuadro de instalación, puedes instalarla desde el menú del navegador (los tres puntos) > 'Instalar esta aplicación'.");
+        
+        if (outcome === 'accepted') {
+            installed = true;
+            installAttempts = 0; // Reiniciamos el contador si se instaló
+        } else {
+            installAttempts++; // El usuario rechazó la instalación
         }
     } else {
-        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' (parece un monitor con una flecha hacia abajo) en el lado derecho de la barra de direcciones.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
+        installAttempts++; // El navegador no lanzó el prompt directo
+    }
+
+    // Mostrar mensaje alternativo después de 5 intentos fallidos
+    if (!installed && installAttempts >= 5) {
+        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' (parece un monitor con una flecha hacia abajo) en el lado derecho de la barra de direcciones, o desde el menú (tres puntos) selecciona 'Instalar esta aplicación'.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
+        installAttempts = 0; // Reiniciamos para no saturar de mensajes
     }
 });
 
