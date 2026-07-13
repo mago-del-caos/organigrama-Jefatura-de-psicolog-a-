@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #800000; /* Color Guinda */
+    --primary-color: #800000;
     --hover-color: #a00000;
     --bg-color: #f8f9fa;
     --text-color: #333;
@@ -14,14 +14,11 @@ body, html {
     background-color: var(--bg-color);
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
 }
 
-/* ==========================================
-   Responsividad de Cabecera (PC/Móvil)
-   ========================================== */
 header {
     background-color: var(--primary-color);
     color: var(--white);
@@ -29,6 +26,7 @@ header {
     text-align: center;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     z-index: 10;
+    flex-shrink: 0;
 }
 
 .header-content {
@@ -53,65 +51,28 @@ header h1 {
     letter-spacing: 1px;
 }
 
-/* Logos y su responsividad */
 .title-logo {
     height: 50px;
     width: 50px;
     object-fit: contain;
 }
 
-/* Estilos específicos por dispositivo */
-/* PC/Tablets grandes */
 @media (min-width: 1024px) {
-    header {
-        padding: 15px 20px;
-    }
-    header h1 {
-        font-size: 28px;
-    }
-    .title-logo {
-        height: 60px;
-        width: 60px;
-    }
-    .mobile-logo {
-        display: none;
-    }
-    .pc-logo {
-        display: block;
-    }
-    .mobile-hint {
-        display: none;
-    }
+    header { padding: 15px 20px; }
+    header h1 { font-size: 28px; }
+    .title-logo { height: 60px; width: 60px; }
+    .mobile-logo, .mobile-hint { display: none; }
+    .pc-logo { display: block; }
 }
 
-/* Dispositivos Móviles (Android/iPhone) y tablets pequeñas */
 @media (max-width: 1023px) {
-    header {
-        padding: 8px 10px;
-    }
-    header h1 {
-        font-size: 18px; /* Título más pequeño en móvil */
-        word-wrap: break-word;
-    }
-    .title-logo {
-        height: 35px;
-        width: 35px;
-    }
-    /* En móvil, los logos flanquean el título *dentro* del title-container */
-    .mobile-logo {
-        display: block;
-    }
-    .pc-logo {
-        display: none;
-    }
-    .pc-hint {
-        display: none;
-    }
+    header { padding: 8px 10px; }
+    header h1 { font-size: 18px; word-wrap: break-word; }
+    .title-logo { height: 35px; width: 35px; }
+    .mobile-logo { display: block; }
+    .pc-logo, .pc-hint { display: none; }
 }
 
-/* ==========================================
-   Controles y Ayuda
-   ========================================== */
 .controls {
     margin-top: 8px;
     display: flex;
@@ -133,23 +94,14 @@ header h1 {
     font-size: 14px;
 }
 
-.controls button:hover {
-    background: #e0e0e0;
-}
+.controls button:hover { background: #e0e0e0; }
+.hint { font-size: 12px; opacity: 0.8; }
 
-.hint {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-/* ==========================================
-   Área Principal del Árbol
-   ========================================== */
 main {
     flex-grow: 1;
     position: relative;
     width: 100%;
-    height: 100%;
+    overflow: hidden; /* Evita scrolls fantasmas */
 }
 
 #tree-container {
@@ -158,9 +110,6 @@ main {
     background-color: var(--white);
 }
 
-/* ==========================================
-   Botón Flotante (FAB) Responsivo
-   ========================================== */
 .fab {
     position: fixed;
     background-color: var(--primary-color);
@@ -172,39 +121,23 @@ main {
     z-index: 1000;
 }
 
-.fab:hover {
-    background-color: var(--hover-color);
-    transform: scale(1.05);
-}
+.fab:hover { background-color: var(--hover-color); transform: scale(1.05); }
+.fab.hidden { display: none; }
 
-.fab.hidden {
-    display: none;
-}
-
-/* FAB en PC */
 @media (min-width: 1024px) {
     .fab {
-        bottom: 30px;
-        right: 30px;
-        border-radius: 50px;
-        padding: 15px 25px;
-        font-size: 16px;
-        font-weight: bold;
+        bottom: 30px; right: 30px;
+        border-radius: 50px; padding: 15px 25px;
+        font-size: 16px; font-weight: bold;
     }
 }
 
-/* FAB en Móvil/iPhone */
 @media (max-width: 1023px) {
     .fab {
-        bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%); /* Centrado abajo en móvil */
-        border-radius: 30px;
-        padding: 10px 20px;
-        font-size: 14px;
-        width: 80%; /* Más ancho en móvil */
+        bottom: 15px; left: 50%;
+        transform: translateX(-50%);
+        border-radius: 30px; padding: 10px 20px;
+        font-size: 14px; width: 80%;
     }
-    .fab:hover {
-        transform: translateX(-50%) scale(1.02);
-    }
+    .fab:hover { transform: translateX(-50%) scale(1.02); }
 }
