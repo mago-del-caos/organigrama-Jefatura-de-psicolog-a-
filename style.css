@@ -15,11 +15,11 @@
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* MODO OSCURO */
+/* MODO OSCURO (Corregido) */
 body.dark-mode {
     --bg-color: #121212;
     --text-color: #E0E0E0;
-    --white: #1E1E1E; /* Fondo de tarjetas */
+    --white: #1E1E1E; /* Fondo de tarjetas y selectores */
     --light-gray: #333333;
     --pattern-color: #2a2a2a;
     --hint-bg: #1E1E1E;
@@ -66,7 +66,6 @@ header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; let
 }
 .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
 .tab-btn.active { color: #fff; border-bottom-color: var(--secondary-color); }
-.tab-btn.hidden { display: none !important; }
 
 .tab-content { display: none; flex-grow: 1; flex-direction: column; width: 100%; height: 100%; animation: fadeIn 0.5s ease; overflow: hidden; }
 .tab-content.active { display: flex; }
@@ -101,9 +100,9 @@ body.dark-mode .big-text { color: var(--secondary-color); }
 .flow-path .step { background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 15px; margin: 5px 0; display: inline-block; }
 .flow-path .arrow { color: var(--secondary-color); font-weight: bold; margin: 0 8px; font-size: 18px; }
 
+/* BOTÓN FAB PWA (Siempre visible) */
 .fab { position: fixed; background: linear-gradient(135deg, var(--primary-color) 0%, #7A1A33 100%); color: #fff; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(159, 34, 65, 0.4); transition: var(--transition); z-index: 1000; font-family: 'Noto Sans', sans-serif; font-weight: 600; }
 .fab:hover { transform: scale(1.05); }
-.fab.hidden { display: none; }
 
 @media (min-width: 1024px) {
     .fab { bottom: 30px; right: 30px; border-radius: 50px; padding: 12px 24px; font-size: 15px; }
