@@ -25,14 +25,12 @@
         </div>
         
         <nav class="tabs">
-            <button id="btn-org-vertical" class="tab-btn active" onclick="showOrgTab('vertical', event)">Organigrama vertical</button>
-            <button id="btn-org-horizontal" class="tab-btn" onclick="showOrgTab('horizontal', event)">Organigrama horizontal</button>
-            <button id="download-png" class="tab-btn">⬇️ Descargar organigrama</button>
+            <button id="btn-org-vertical" class="tab-btn active" onclick="showOrgTab('horizontal', event)">Organigrama vertical</button>
+            <button id="btn-org-horizontal" class="tab-btn" onclick="showOrgTab('vertical', event)">Organigrama horizontal</button>
             <button class="tab-btn" onclick="showTab('info-tab', event)">Flujo de trabajo</button>
             <a href="https://drive.google.com/file/d/1wN5e8RgIU0ItgqahfzHK_7YgWJId0gsg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="tab-btn">📄 Informe</a>
             <a href="https://canva.link/y0e02cjaw01yu1o" target="_blank" rel="noopener noreferrer" class="tab-btn">📊 Presentación</a>
             <a href="https://www.youtube.com/watch?v=HK4veStQEUU" target="_blank" rel="noopener noreferrer" class="tab-btn">🎥 Video explicativo</a>
-            <button id="dark-mode-toggle" class="tab-btn">🌙 Modo Oscuro</button>
         </nav>
     </header>
 
@@ -70,10 +68,10 @@
         </div>
     </main>
 
-    <!-- Botón flotante siempre visible -->
-    <button id="install-btn" class="fab" title="Instalar aplicación en este dispositivo">
-        📥 Descargar App
-    </button>
+    <!-- BOTONES FLOTANTES -->
+    <button id="dark-mode-toggle" class="fab fab-dark" title="Cambiar tema">☀️</button>
+    <button id="download-png-fab" class="fab fab-download" title="Descargar organigrama en PNG">⬇️ Descargar</button>
+    <button id="install-btn" class="fab fab-install" title="Instalar aplicación">📥 Descargar App</button>
 
     <script src="script.js"></script>
 </body>
