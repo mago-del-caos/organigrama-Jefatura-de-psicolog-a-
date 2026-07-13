@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigrama Jefatura LAD</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <!-- Carga de D3.js para el árbol interactivo -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo.png" alt="Logo Izquierdo" class="title-logo pc-logo">
+            <div class="title-container">
+                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo">
+                <h1>Organigrama Jefatura LAD</h1>
+                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo">
+            </div>
+            <img src="logo.png" alt="Logo Derecho" class="title-logo pc-logo">
+        </div>
+        <div class="controls">
+            <button id="toggle-orientation">Cambiar a Vista Vertical</button>
+            <span class="hint pc-hint">Interactúa arrastrando, haciendo zoom o clic en los nodos para colapsar/expandir.</span>
+            <span class="hint mobile-hint">Toca, arrastra o pellizca para navegar. Clic en nodos para colapsar.</span>
+        </div>
+    </header>
+
+    <main>
+        <div id="tree-container"></div>
+    </main>
+
+    <!-- Botón Flotante para PWA -->
+    <button id="install-btn" class="fab hidden" title="Descargar Aplicación">
+        📥 Descargar App
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
