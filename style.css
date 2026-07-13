@@ -48,8 +48,32 @@ header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; let
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 .controls { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; padding: 15px; background: var(--white); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-.action-btn { background: var(--white); color: var(--primary-color); border: 1.5px solid var(--primary-color); padding: 8px 16px; cursor: pointer; border-radius: 25px; font-weight: 600; transition: var(--transition); font-size: 14px; font-family: 'Noto Sans', sans-serif; }
-.action-btn:hover { background: var(--primary-color); color: var(--white); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(159, 34, 65, 0.3); }
+
+/* Unificamos estilos para button y a (action-btn) */
+.action-btn {
+    background: var(--white);
+    color: var(--primary-color);
+    border: 1.5px solid var(--primary-color);
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: var(--transition);
+    font-size: 14px;
+    font-family: 'Noto Sans', sans-serif;
+    text-decoration: none; /* Quita el subrayado de los enlaces */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-btn:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(159, 34, 65, 0.3);
+}
+
 .hint { font-size: 12px; color: #666; }
 
 #tree-container { width: 100%; flex-grow: 1; background-color: var(--bg-color); background-image: radial-gradient(#e0e0e0 1px, transparent 1px); background-size: 20px 20px; }
