@@ -1,22 +1,22 @@
 {
-"name": "Organigrama Jefatura LAD",
-"short_name": "Org LAD",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#ffffff",
-"theme_color": "#800000",
-"description": "Aplicación interactiva del organigrama de la Jefatura LAD",
-"icons": [
-{
-"src": "app.png",
-"sizes": "150x150",
-"type": "image/png",
-"purpose": "any maskable"
-},
-{
-"src": "app.png",
-"sizes": "512x512",
-"type": "image/png"
-}
-]
+  "name": "Organigrama Jefatura LAD",
+  "short_name": "Org LAD",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#800000",
+  "description": "Aplicación interactiva del organigrama de la Jefatura LAD",
+  "icons": [
+    {
+      "src": "app.png",
+      "sizes": "150x150",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "app.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
