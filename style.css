@@ -1,109 +1,81 @@
-:root {
-    --primary-color: #9F2241; /* Guinda Pantone 7420 C */
-    --secondary-color: #BC955C; /* Dorado Pantone 465 C */
-    --tertiary-color: #235B4E; /* Verde Pantone 626 C */
-    --bg-color: #F9F9F9;
-    --text-color: #333333;
-    --white: #FFFFFF;
-    --light-gray: #EAEAEA;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigrama Jefatura LAD | UNRC</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
+            <div class="title-container">
+                <img src="logo.jpeg" alt="Logo UNRC" class="title-logo mobile-logo" onerror="this.style.display='none'">
+                <h1>Jefatura LAD</h1>
+                <p class="subtitle">Universidad Nacional Rosario Castellanos</p>
+            </div>
+            <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
+        </div>
+        
+        <!-- MENÚ UNIFICADO EN EL ORDEN PEDIDO -->
+        <nav class="tabs">
+            <button id="btn-org-vertical" class="tab-btn active" onclick="showOrgTab('vertical', event)">Organigrama vertical</button>
+            <button id="btn-org-horizontal" class="tab-btn" onclick="showOrgTab('horizontal', event)">Organigrama horizontal</button>
+            <button id="download-png" class="tab-btn">⬇️ Descargar organigrama</button>
+            <button class="tab-btn" onclick="showTab('info-tab', event)">Flujo de trabajo</button>
+            <a href="https://drive.google.com/file/d/1wN5e8RgIU0ItgqahfzHK_7YgWJId0gsg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="tab-btn">📊 Infografía</a>
+            <a href="https://www.youtube.com/watch?v=HK4veStQEUU" target="_blank" rel="noopener noreferrer" class="tab-btn">🎥 Video explicativo</a>
+        </nav>
+    </header>
 
-* { box-sizing: border-box; }
+    <!-- Pestaña 1: Organigrama -->
+    <main id="org-tab" class="tab-content active">
+        <div class="hint-bar">Arrastra para mover, rueda para zoom, clic en nodos para expandir.</div>
+        <div id="tree-container"></div>
+    </main>
 
-html, body {
-    margin: 0; padding: 0;
-    font-family: 'Noto Sans', sans-serif;
-    background-color: var(--bg-color); color: var(--text-color);
-    width: 100%; height: 100%;
-    overflow: hidden;
-    display: flex; flex-direction: column;
-}
+    <!-- Pestaña 2: Flujo de Información -->
+    <main id="info-tab" class="tab-content">
+        <div class="info-container">
+            <h2>Flujo de Información</h2>
+            <p>Selecciona el origen y el destino para calcular la ruta de comunicación y el número de personas entre ellos.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="origen">Origen (¿Quién envía?)</label>
+                    <select id="origen" class="custom-select"></select>
+                </div>
+                <div class="form-arrow">➔</div>
+                <div class="form-group">
+                    <label for="destino">Fin (¿Quién recibe?)</label>
+                    <select id="destino" class="custom-select"></select>
+                </div>
+            </div>
 
-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #7A1A33 100%);
-    color: var(--white);
-    padding: 15px 15px 0;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 10; flex-shrink: 0;
-}
+            <button id="calc-ruta" class="action-btn" style="margin-top: 20px;">Calcular Ruta</button>
 
-.header-content { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px; }
-.title-container { display: flex; flex-direction: column; justify-content: center; align-items: center; }
-header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; letter-spacing: 1px; font-size: 26px; }
-.subtitle { margin: 5px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--secondary-color); font-weight: 600; }
-.title-logo { height: 50px; width: auto; object-fit: contain; }
-.mobile-logo { display: none; }
+            <div id="resultado-flujo" class="result-card hidden">
+                <h3>Resultado del Flujo</h3>
+                <p id="personas-entre" class="big-text"></p>
+                <div class="flow-path-container">
+                    <p id="ruta-flujo" class="flow-path"></p>
+                </div>
+            </div>
+        </div>
+    </main>
 
-/* MENÚ UNIFICADO */
-.tabs {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-    border-bottom: 2px solid rgba(255,255,255,0.2);
-    padding-bottom: 5px;
-}
+    <!-- BOTÓN FLOTANTE PARA DESCARGAR APP -->
+    <button id="install-btn" class="fab hidden" title="Descargar Aplicación">
+        📥 Descargar App
+    </button>
 
-.tab-btn { 
-    background: transparent; 
-    color: rgba(255,255,255,0.7); 
-    border: none; 
-    padding: 8px 20px; 
-    cursor: pointer; 
-    font-size: 14px; 
-    font-weight: 600; 
-    border-bottom: 3px solid transparent; 
-    border-radius: 0;
-    transition: var(--transition); 
-    font-family: 'Noto Sans', sans-serif; 
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-}
-.tab-btn:hover { color: var(--white); background: rgba(255,255,255,0.1); }
-.tab-btn.active { color: var(--white); border-bottom-color: var(--secondary-color); }
-.tab-btn.hidden { display: none !important; } /* Oculta el botón de descargar app hasta que sea posible */
-
-/* CONTENIDO PRINCIPAL */
-.tab-content { display: none; flex-grow: 1; flex-direction: column; width: 100%; height: 100%; animation: fadeIn 0.5s ease; overflow: hidden; }
-.tab-content.active { display: flex; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.hint-bar { padding: 8px; text-align: center; font-size: 12px; color: #666; background: var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-#tree-container { width: 100%; flex-grow: 1; background-color: var(--bg-color); background-image: radial-gradient(#e0e0e0 1px, transparent 1px); background-size: 20px 20px; }
-
-/* PESTAÑA FLUJO DE INFORMACIÓN */
-.info-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; width: 100%; overflow-y: auto; height: 100%; }
-.info-container h2 { font-family: 'Merriweather', serif; color: var(--primary-color); border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; display: inline-block; }
-.info-container > p { color: #555; line-height: 1.6; margin-bottom: 30px; }
-
-.form-row { display: flex; justify-content: center; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
-.form-group { display: flex; flex-direction: column; flex: 1; min-width: 250px; }
-.form-group label { font-size: 14px; font-weight: 600; color: var(--tertiary-color); margin-bottom: 8px; }
-.custom-select { padding: 12px 15px; border: 2px solid var(--light-gray); border-radius: 8px; font-family: 'Noto Sans', sans-serif; font-size: 14px; color: var(--text-color); background: var(--white); transition: var(--transition); cursor: pointer; }
-.custom-select:focus { outline: none; border-color: var(--primary-color); }
-.form-arrow { font-size: 24px; color: var(--secondary-color); padding-bottom: 10px; }
-
-.action-btn { background: var(--primary-color); color: var(--white); border: none; padding: 12px 24px; cursor: pointer; border-radius: 25px; font-weight: 600; transition: var(--transition); font-size: 14px; font-family: 'Noto Sans', sans-serif; }
-.action-btn:hover { background: #7A1A33; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(159, 34, 65, 0.3); }
-
-.result-card { margin-top: 40px; background: var(--white); padding: 30px; border-radius: 12px; box-shadow: var(--shadow-soft); border-left: 6px solid var(--tertiary-color); }
-.result-card.hidden { display: none; }
-.result-card h3 { margin-top: 0; color: var(--primary-color); font-family: 'Merriweather', serif; }
-.big-text { font-size: 22px; font-weight: 700; color: var(--tertiary-color); margin-bottom: 20px; text-align: center; }
-.flow-path-container { background: var(--bg-color); padding: 20px; border-radius: 8px; border: 1px dashed var(--secondary-color); }
-.flow-path { margin: 0; font-size: 16px; color: var(--text-color); line-height: 1.8; font-weight: 500; }
-.flow-path .step { background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 15px; margin: 5px 0; display: inline-block; }
-.flow-path .arrow { color: var(--secondary-color); font-weight: bold; margin: 0 8px; }
-
-@media (max-width: 1023px) {
-    header h1 { font-size: 20px; }
-    .pc-logo { display: none; }
-    .mobile-logo { display: block; height: 35px; }
-}
+    <script src="script.js"></script>
+</body>
+</html>
