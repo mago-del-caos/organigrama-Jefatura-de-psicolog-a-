@@ -20,7 +20,7 @@ const orgData = {
 };
 
 // 2. CONFIGURACIÓN D3.js
-let orientation = "vertical"; // Inicia en vertical según el primer botón
+let orientation = "vertical";
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
@@ -34,7 +34,6 @@ const TERTIARY_COLOR = "#235B4E";
 
 function init() {
     if (!container || container.clientWidth === 0) return;
-    
     d3.select("#tree-container").selectAll("*").remove();
     const width = container.clientWidth;
     const height = container.clientHeight;
@@ -128,20 +127,18 @@ function click(event, d) {
     update(d);
 }
 
-// 3. LÓGICA DE INTERFAZ (Pestañas y Vistas)
+// 3. LÓGICA DE INTERFAZ
 function setActiveTab(evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
         evt.currentTarget.classList.add('active');
     }
 }
-
 function showTab(tabId, evt) {
     setActiveTab(evt);
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
 }
-
 function showOrgTab(orient, evt) {
     setActiveTab(evt);
     orientation = orient;
@@ -154,7 +151,7 @@ function showOrgTab(orient, evt) {
 document.getElementById('download-png').addEventListener('click', (e) => {
     e.preventDefault();
     const node = document.getElementById('tree-container');
-    domtoimage.toPng(node, { bgcolor: '#F9F9F9' })
+    domtoimage.toPng(node, { bgcolor: getComputedStyle(document.body).getPropertyValue('--bg-color') })
         .then(function (dataUrl) {
             const link = document.createElement('a');
             link.download = 'Organigrama_LAD_UNRC.png';
@@ -167,7 +164,7 @@ document.getElementById('download-png').addEventListener('click', (e) => {
         });
 });
 
-// 4. LÓGICA DE FLUJO DE INFORMACIÓN
+// 4. LÓGICA DE FLUJO DE TRABAJO
 const allNodes = d3.hierarchy(orgData).descendants().map(d => d.data.name);
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
@@ -202,37 +199,68 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     path.forEach((nodo, index) => {
         flowHTML += `<span class="step">${nodo.data.name}</span>`;
         if(index < path.length - 1) {
-            flowHTML += `<span class="arrow">➔</span>`;
+            const currDepth = nodo.depth;
+            const nextDepth = path[index + 1].depth;
+            let arrow = "➔"; 
+            if (nextDepth < currDepth) {
+                arrow = "⬆️"; // Sube
+            } else if (nextDepth > currDepth) {
+                arrow = "⬇️"; // Baja
+            }
+            flowHTML += `<span class="arrow">${arrow}</span>`;
         }
     });
 
-    document.getElementById('personas-entre').innerText = `Hay ${intermedios} persona(s) entre el origen y el fin.`;
+    let textoResultado = `Hay ${intermedios} persona(s) en la ruta media.`;
+    if (intermedios === 0) {
+        textoResultado = "Comunicación directa (no hay intermediarios).";
+    }
+
+    document.getElementById('personas-entre').innerText = textoResultado;
     document.getElementById('ruta-flujo').innerHTML = flowHTML;
     document.getElementById('resultado-flujo').classList.remove('hidden');
 });
 
-// 5. PWA LÓGICA
+// 5. MODO OSCURO (Lógica corregida)
+const darkModeToggle = document.getElementById('dark-mode-toggle');
+// Aplicar preferencia guardada al cargar
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.textContent = '☀️ Modo Claro';
+}
+darkModeToggle.addEventListener('click', (e) => {
+    document.body.classList.toggle('dark-mode');
+    if (document.body.classList.contains('dark-mode')) {
+        e.currentTarget.textContent = '☀️ Modo Claro';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        e.currentTarget.textContent = '🌙 Modo Oscuro';
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+// 6. PWA LÓGICA (Botón siempre interactivo)
 let deferredPrompt;
 const installBtn = document.getElementById('install-btn');
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
     deferredPrompt = e; 
-    installBtn.classList.remove('hidden'); // Muestra el botón flotante
 });
 installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
-        installBtn.classList.add('hidden'); 
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        if (outcome !== 'accepted') installBtn.classList.remove('hidden');
+        if (outcome !== 'accepted') {
+            alert("Si no se abrió el cuadro de instalación, puedes instalarla desde el menú del navegador (los tres puntos) > 'Instalar esta aplicación'.");
+        }
+    } else {
+        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' (parece un monitor con una flecha hacia abajo) en el lado derecho de la barra de direcciones.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
     }
 });
 
-// Inicializar en vertical por defecto
-window.addEventListener('load', () => {
-    init();
-});
+// Inicializar
+window.addEventListener('load', () => { init(); });
 let resizeTimer;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
