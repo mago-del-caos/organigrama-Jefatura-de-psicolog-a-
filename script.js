@@ -20,7 +20,7 @@ const orgData = {
 };
 
 // 2. CONFIGURACIÓN D3.js
-let orientation = "horizontal";
+let orientation = "vertical"; // Inicia en vertical según el primer botón
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
@@ -128,30 +128,31 @@ function click(event, d) {
     update(d);
 }
 
-// 3. LÓGICA DE INTERFAZ (Pestañas)
-function showTab(tabId, evt) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+// 3. LÓGICA DE INTERFAZ (Pestañas y Vistas)
+function setActiveTab(evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    
-    document.getElementById(tabId).classList.add('active');
-    if (evt && evt.currentTarget.classList.contains('tab-btn')) {
+    if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
         evt.currentTarget.classList.add('active');
-    }
-    
-    // Recalcular tamaño del organigrama al volver a la pestaña
-    if(tabId === 'org-tab') {
-        setTimeout(() => init(), 100);
     }
 }
 
-document.getElementById('toggle-orientation').addEventListener('click', (e) => {
-    orientation = orientation === "horizontal" ? "vertical" : "horizontal";
-    e.target.textContent = orientation === "horizontal" ? "↳ Cambiar Vista" : "↳ Vista Horizontal";
-    init();
-});
+function showTab(tabId, evt) {
+    setActiveTab(evt);
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+}
+
+function showOrgTab(orient, evt) {
+    setActiveTab(evt);
+    orientation = orient;
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById('org-tab').classList.add('active');
+    setTimeout(() => init(), 100);
+}
 
 // DESCARGAR PNG
-document.getElementById('download-png').addEventListener('click', () => {
+document.getElementById('download-png').addEventListener('click', (e) => {
+    e.preventDefault();
     const node = document.getElementById('tree-container');
     domtoimage.toPng(node, { bgcolor: '#F9F9F9' })
         .then(function (dataUrl) {
@@ -214,18 +215,21 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
 let deferredPrompt;
 const installBtn = document.getElementById('install-btn');
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden');
+    e.preventDefault(); 
+    deferredPrompt = e; 
+    installBtn.classList.remove('hidden'); // Muestra el botón flotante
 });
 installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
-        installBtn.classList.add('hidden'); deferredPrompt.prompt();
+        installBtn.classList.add('hidden'); 
+        deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
         if (outcome !== 'accepted') installBtn.classList.remove('hidden');
     }
 });
 
-// Inicializar
+// Inicializar en vertical por defecto
 window.addEventListener('load', () => {
     init();
 });
