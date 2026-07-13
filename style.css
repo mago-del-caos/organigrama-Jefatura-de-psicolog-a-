@@ -57,38 +57,16 @@ header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; let
 .title-logo { height: 50px; width: auto; object-fit: contain; }
 .mobile-logo { display: none; }
 
-/* MENÚ UNIFICADO */
-.tabs { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 5px; 
-    margin-top: 10px; 
-    flex-wrap: wrap; /* En PC envuelve si es necesario */
-    border-bottom: 2px solid rgba(255,255,255,0.2); 
-    padding-bottom: 5px;
-}
-
+.tabs { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 10px; flex-wrap: wrap; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
 .tab-btn { 
-    background: transparent; 
-    color: rgba(255,255,255,0.7); 
-    border: none; 
-    padding: 8px 20px; 
-    cursor: pointer; 
-    font-size: 14px; 
-    font-weight: 600; 
-    border-bottom: 3px solid transparent; 
-    border-radius: 0; 
-    transition: var(--transition); 
-    font-family: 'Noto Sans', sans-serif; 
-    text-decoration: none; 
-    display: inline-flex; 
-    align-items: center;
+    background: transparent; color: rgba(255,255,255,0.7); border: none; 
+    padding: 8px 20px; cursor: pointer; font-size: 14px; font-weight: 600; 
+    border-bottom: 3px solid transparent; border-radius: 0; transition: var(--transition); 
+    font-family: 'Noto Sans', sans-serif; text-decoration: none; display: inline-flex; align-items: center;
 }
 .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
 .tab-btn.active { color: #fff; border-bottom-color: var(--secondary-color); }
 
-/* CONTENIDO PRINCIPAL */
 .tab-content { display: none; flex-grow: 1; flex-direction: column; width: 100%; height: 100%; animation: fadeIn 0.5s ease; overflow: hidden; }
 .tab-content.active { display: flex; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -122,38 +100,37 @@ body.dark-mode .big-text { color: var(--secondary-color); }
 .flow-path .step { background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 15px; margin: 5px 0; display: inline-block; }
 .flow-path .arrow { color: var(--secondary-color); font-weight: bold; margin: 0 8px; font-size: 18px; }
 
-/* BOTÓN FAB PWA */
-.fab { position: fixed; background: linear-gradient(135deg, var(--primary-color) 0%, #7A1A33 100%); color: #fff; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(159, 34, 65, 0.4); transition: var(--transition); z-index: 1000; font-family: 'Noto Sans', sans-serif; font-weight: 600; }
-.fab:hover { transform: scale(1.05); }
-
-@media (min-width: 1024px) {
-    .fab { bottom: 30px; right: 30px; border-radius: 50px; padding: 12px 24px; font-size: 15px; }
+/* BOTONES FAB PWA (Flotantes) */
+.fab { 
+    position: fixed; 
+    background: linear-gradient(135deg, var(--primary-color) 0%, #7A1A33 100%); 
+    color: #fff; border: none; cursor: pointer; 
+    box-shadow: 0 6px 20px rgba(159, 34, 65, 0.4); 
+    transition: var(--transition); z-index: 1000; 
+    font-family: 'Noto Sans', sans-serif; font-weight: 600; 
+    display: flex; align-items: center; justify-content: center;
 }
+.fab:hover { transform: scale(1.05); }
+.fab.hidden { display: none; }
 
-/* OPTIMIZACIÓN PARA MÓVIL */
+.fab-install { bottom: 30px; right: 30px; border-radius: 50px; padding: 12px 24px; font-size: 15px; gap: 8px; }
+.fab-download { bottom: 90px; right: 30px; border-radius: 50px; padding: 10px 20px; font-size: 14px; }
+.fab-dark { bottom: 150px; right: 30px; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; }
+
+/* OPTIMIZACIÓN MÓVIL */
 @media (max-width: 1023px) {
     header h1 { font-size: 20px; }
     .pc-logo { display: none; }
     .mobile-logo { display: block; height: 35px; }
     
-    /* Convertir el menú en barra deslizable para que ocupe solo 1 línea */
     .tabs {
-        justify-content: flex-start;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 10px; /* Espacio para no tapar el texto con el scroll */
-        -webkit-overflow-scrolling: touch; /* Deslizamiento suave en iOS */
-        scrollbar-width: none; /* Ocultar scrollbar en Firefox */
+        justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; white-space: nowrap;
+        padding-bottom: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
-    .tabs::-webkit-scrollbar {
-        display: none; /* Ocultar scrollbar en Chrome/Safari/Edge */
-    }
-    .tab-btn {
-        padding: 8px 12px; /* Botones más compactos */
-        font-size: 13px;
-        flex-shrink: 0; /* Evita que se encojan */
-    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { padding: 8px 12px; font-size: 13px; flex-shrink: 0; }
 
-    .fab { bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 10px 20px; font-size: 14px; width: 80%; }
+    .fab-install { bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 10px 20px; font-size: 14px; width: 80%; }
+    .fab-download { bottom: 80px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 8px 16px; font-size: 13px; width: 60%; }
+    .fab-dark { bottom: auto; top: 15px; right: 15px; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; }
 }
