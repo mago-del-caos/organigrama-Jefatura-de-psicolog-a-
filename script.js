@@ -1,3 +1,14 @@
+/ ==========================================
+// REGISTRO DEL SERVICE WORKER (REQUISITO PARA DESCARGAR COMO APP)
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registrado:', reg.scope))
+            .catch(err => console.log('Error en Service Worker:', err));
+    });
+}
+
 // ==========================================
 // 1. DATOS DEL ORGANIGRAMA (Corregidos)
 // ==========================================
@@ -80,70 +91,52 @@ let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// Dimensiones de las "tarjetas" (nodos)
+// Dimensiones de los nodos
 const nodeWidth = 240;
-const nodeHeight = 65;
+const nodeHeight = 70;
 
 function init() {
-    // Limpiar contenedor previo
     d3.select("#tree-container").selectAll("*").remove();
     
     const width = container.clientWidth;
     const height = container.clientHeight;
-    
-    // Márgenes para evitar que se corte el diagrama
     const margin = {top: 60, right: 120, bottom: 60, left: 120};
 
-    // Crear SVG principal
     svg = d3.select("#tree-container").append("svg")
         .attr("width", width)
         .attr("height", height)
         .style("cursor", "grab");
 
-    // Grupo contenedor para pan y zoom
     g = svg.append("g");
         
-    // Lógica de Zoom y Paneo
     zoom = d3.zoom()
-        .scaleExtent([0.2, 3]) // Zoom de 20% hasta 300%
+        .scaleExtent([0.2, 3])
         .on("zoom", (event) => {
             g.attr("transform", event.transform);
         });
     svg.call(zoom);
     
-    // Lógica de espaciado según la orientación
     if (orientation === "horizontal") {
-        treeLayout = d3.tree().nodeSize([nodeHeight + 30, nodeWidth + 100]);
+        treeLayout = d3.tree().nodeSize([nodeHeight + 40, nodeWidth + 80]);
     } else {
         treeLayout = d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 80]);
     }
 
-    // Convertir datos planos a jerarquía D3
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
     root.y0 = 0;
 
-    // Colapsar todos los nodos secundarios al iniciar la app para no saturar la pantalla
+    // Colapsar todo menos la raíz
     root.children.forEach(collapse);
-    
-    // Renderizar
     update(root);
     
-    // Centrar la vista inicial de forma elegante (responsive)
-    let initialX, initialY;
-    if (orientation === "horizontal") {
-        initialX = width < 768 ? width / 8 : width / 4; 
-        initialY = height / 2;
-    } else {
-        initialX = width / 2;
-        initialY = height / 4;
-    }
-    
+    // Centrar
+    let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
+    let initialY = orientation === "horizontal" ? height/2 : height/4;
     const initialTransform = d3.zoomIdentity.translate(initialX, initialY).scale(0.85);
     svg.call(zoom.transform, initialTransform);
 }
 
-// Función recursiva para colapsar hijos
 function collapse(d) {
     if (d.children) {
         d._children = d.children;
@@ -152,17 +145,14 @@ function collapse(d) {
     }
 }
 
-// Función principal de actualización y dibujo
 function update(source) {
     const treeData = treeLayout(root);
     const nodes = treeData.descendants();
     const links = treeData.descendants().slice(1);
 
-    // ================== NODOS ==================
     const node = g.selectAll("g.node")
         .data(nodes, d => d.id || (d.id = ++i));
 
-    // Entrada de nuevos nodos
     const nodeEnter = node.enter().append("g")
         .attr("class", "node")
         .attr("transform", d => orientation === "horizontal" 
@@ -170,20 +160,19 @@ function update(source) {
             : `translate(${source.x0},${source.y0})`)
         .on("click", click);
 
-    // Dibujar rectángulo del nodo
     nodeEnter.append("rect")
         .attr("width", nodeWidth)
         .attr("height", nodeHeight)
         .attr("x", -(nodeWidth/2))
         .attr("y", -(nodeHeight/2))
-        .attr("rx", 12) // Bordes muy redondeados (Alta Gama)
-        .attr("ry", 12)
+        .attr("rx", 10)
+        .attr("ry", 10)
         .style("fill", d => d._children ? "var(--hover-color)" : "var(--primary-color)")
         .style("stroke", "#4a0000")
         .style("stroke-width", "2px")
         .style("box-shadow", "0 4px 6px rgba(0,0,0,0.1)");
 
-    // Usar foreignObject para texto Multilinea nativo HTML (Evita texto sobrepuesto o cortado)
+    /* Uso de foreignObject para texto de ALTA GAMA (Natívo y responsivo) */
     nodeEnter.append("foreignObject")
         .attr("width", nodeWidth - 20)
         .attr("height", nodeHeight - 10)
@@ -197,13 +186,12 @@ function update(source) {
         .style("width", "100%")
         .style("height", "100%")
         .style("color", "#ffffff")
-        .style("font-family", "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif")
-        .style("font-size", "12px")
+        .style("font-family", "'Segoe UI', sans-serif")
+        .style("font-size", "13px")
         .style("font-weight", "500")
-        .style("pointer-events", "none") // Deja que el click pase al nodo
+        .style("pointer-events", "none")
         .html(d => d.data.name);
 
-    // Actualizar nodos
     const nodeUpdate = nodeEnter.merge(node);
 
     nodeUpdate.transition()
@@ -216,7 +204,6 @@ function update(source) {
         .style("fill", d => d._children ? "var(--hover-color)" : "var(--primary-color)")
         .style("cursor", "pointer");
 
-    // Salida de nodos colapsados
     const nodeExit = node.exit().transition()
         .duration(duration)
         .attr("transform", d => orientation === "horizontal" 
@@ -227,7 +214,6 @@ function update(source) {
     nodeExit.select("rect").attr("width", 1e-6).attr("height", 1e-6);
     nodeExit.select("foreignObject").style("opacity", 1e-6);
 
-    // ================== ENLACES (Líneas) ==================
     const link = g.selectAll("path.link")
         .data(links, d => d.id);
 
@@ -256,29 +242,20 @@ function update(source) {
         })
         .remove();
 
-    // Guardar posiciones anteriores para transiciones suaves
     nodes.forEach(d => {
         d.x0 = d.x;
         d.y0 = d.y;
     });
 }
 
-// Dibujar las curvas de conexión entre nodos
 function diagonal(s, d) {
     if (orientation === "horizontal") {
-        return `M ${s.y} ${s.x}
-                C ${(s.y + d.y) / 2} ${s.x},
-                  ${(s.y + d.y) / 2} ${d.x},
-                  ${d.y} ${d.x}`;
+        return `M ${s.y} ${s.x} C ${(s.y + d.y) / 2} ${s.x}, ${(s.y + d.y) / 2} ${d.x}, ${d.y} ${d.x}`;
     } else {
-        return `M ${s.x} ${s.y}
-                C ${s.x} ${(s.y + d.y) / 2},
-                  ${d.x} ${(s.y + d.y) / 2},
-                  ${d.x} ${d.y}`;
+        return `M ${s.x} ${s.y} C ${s.x} ${(s.y + d.y) / 2}, ${d.x} ${(s.y + d.y) / 2}, ${d.x} ${d.y}`;
     }
 }
 
-// Clic: Alternar expansión/colapso
 function click(event, d) {
     if (d.children) {
         d._children = d.children;
@@ -290,22 +267,15 @@ function click(event, d) {
     update(d);
 }
 
-// ==========================================
-// 3. CONTROLES Y RESPONSIVIDAD
-// ==========================================
 const toggleBtn = document.getElementById('toggle-orientation');
 toggleBtn.addEventListener('click', () => {
     orientation = orientation === "horizontal" ? "vertical" : "horizontal";
     toggleBtn.textContent = orientation === "horizontal" ? "Cambiar a Vista Vertical" : "Cambiar a Vista Horizontal";
-    init(); // Redibujar con nueva orientación
+    init();
 });
 
-// Inicializar el árbol al cargar
 init();
-
-// Redibujar si cambia el tamaño de la ventana/pantalla (cambio de rotación de iPhone/Android)
 window.addEventListener('resize', init);
-
 
 // ==========================================
 // 4. PWA: LÓGICA DE INSTALACIÓN (Botón FAB)
@@ -314,27 +284,19 @@ let deferredPrompt;
 const installBtn = document.getElementById('install-btn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Evitar el prompt automático
     e.preventDefault();
-    // Guardar evento para dispararlo al hacer clic
     deferredPrompt = e;
-    // Mostrar el botón de descarga
-    installBtn.classList.remove('hidden');
+    installBtn.classList.remove('hidden'); // Muestra el botón cuando el navegador permite descargar
 });
 
 installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
-        // Ocultar botón durante el prompt
         installBtn.classList.add('hidden');
-        // Mostrar el prompt nativo
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`PWA Setup: Elección del usuario - ${outcome}`);
-        
-        // Limpiar
+        console.log(`Resultado de instalación: ${outcome}`);
         deferredPrompt = null;
         
-        // Si el usuario cancela, volvemos a mostrar el botón
         if (outcome !== 'accepted') {
             installBtn.classList.remove('hidden');
         }
