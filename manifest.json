@@ -1,11 +1,11 @@
 {
-  "name": "Organigrama Jefatura LAD",
-  "short_name": "Org LAD",
+  "name": "Organigrama Jefatura LAD - UNRC",
+  "short_name": "Org LAD UNRC",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#800000",
-  "description": "Aplicación interactiva del organigrama de la Jefatura LAD",
+  "background_color": "#F9F9F9",
+  "theme_color": "#9F2241",
+  "description": "Aplicación interactiva del organigrama de la Jefatura LAD - UNRC",
   "icons": [
     {
       "src": "app.png",
