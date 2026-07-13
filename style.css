@@ -7,7 +7,6 @@
     --white: #FFFFFF;
     --light-gray: #EAEAEA;
     --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 8px 30px rgba(159, 34, 65, 0.15);
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -18,7 +17,7 @@ html, body {
     font-family: 'Noto Sans', sans-serif;
     background-color: var(--bg-color); color: var(--text-color);
     width: 100%; height: 100%;
-    overflow: hidden; /* Evita scroll global */
+    overflow: hidden;
     display: flex; flex-direction: column;
 }
 
@@ -59,34 +58,16 @@ header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; let
     font-size: 14px; 
     font-weight: 600; 
     border-bottom: 3px solid transparent; 
+    border-radius: 0;
     transition: var(--transition); 
     font-family: 'Noto Sans', sans-serif; 
-}
-.tab-btn:hover { color: var(--white); }
-.tab-btn.active { color: var(--white); border-bottom-color: var(--secondary-color); }
-
-/* Botones de acción en el header */
-.header-btn {
-    background: rgba(255,255,255,0.1);
-    color: var(--white);
-    border: 1px solid rgba(255,255,255,0.3);
-    padding: 6px 14px;
-    cursor: pointer;
-    border-radius: 20px;
-    font-weight: 600;
-    transition: var(--transition);
-    font-size: 13px;
-    font-family: 'Noto Sans', sans-serif;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    margin-left: 5px;
 }
-.header-btn:hover {
-    background: var(--secondary-color);
-    border-color: var(--secondary-color);
-    transform: translateY(-1px);
-}
+.tab-btn:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+.tab-btn.active { color: var(--white); border-bottom-color: var(--secondary-color); }
+.tab-btn.hidden { display: none !important; } /* Oculta el botón de descargar app hasta que sea posible */
 
 /* CONTENIDO PRINCIPAL */
 .tab-content { display: none; flex-grow: 1; flex-direction: column; width: 100%; height: 100%; animation: fadeIn 0.5s ease; overflow: hidden; }
@@ -121,17 +102,8 @@ header h1 { margin: 0; font-family: 'Merriweather', serif; font-weight: 900; let
 .flow-path .step { background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 15px; margin: 5px 0; display: inline-block; }
 .flow-path .arrow { color: var(--secondary-color); font-weight: bold; margin: 0 8px; }
 
-/* BOTÓN FAB PWA */
-.fab { position: fixed; background: linear-gradient(135deg, var(--primary-color) 0%, #7A1A33 100%); color: var(--white); border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(159, 34, 65, 0.4); transition: var(--transition); z-index: 1000; font-family: 'Noto Sans', sans-serif; font-weight: 600; }
-.fab:hover { transform: scale(1.05); }
-.fab.hidden { display: none; }
-
-@media (min-width: 1024px) {
-    .fab { bottom: 30px; right: 30px; border-radius: 50px; padding: 12px 24px; font-size: 15px; }
-}
 @media (max-width: 1023px) {
     header h1 { font-size: 20px; }
     .pc-logo { display: none; }
     .mobile-logo { display: block; height: 35px; }
-    .fab { bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 30px; padding: 10px 20px; font-size: 14px; width: 80%; }
 }
