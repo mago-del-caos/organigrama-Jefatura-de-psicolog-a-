@@ -20,7 +20,8 @@ const orgData = {
 };
 
 // 2. CONFIGURACIÓN D3.js
-let orientation = "vertical";
+// Inicia en horizontal porque en el HTML el botón "Organigrama vertical" pasa 'horizontal'
+let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
@@ -128,6 +129,8 @@ function click(event, d) {
 }
 
 // 3. LÓGICA DE INTERFAZ
+const downloadFab = document.getElementById('download-png-fab');
+
 function setActiveTab(evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
@@ -138,17 +141,19 @@ function showTab(tabId, evt) {
     setActiveTab(evt);
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
+    downloadFab.classList.add('hidden'); // Ocultar descarga en otras pestañas
 }
 function showOrgTab(orient, evt) {
     setActiveTab(evt);
     orientation = orient;
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById('org-tab').classList.add('active');
+    downloadFab.classList.remove('hidden'); // Mostrar descarga en organigrama
     setTimeout(() => init(), 100);
 }
 
 // DESCARGAR PNG
-document.getElementById('download-png').addEventListener('click', (e) => {
+downloadFab.addEventListener('click', (e) => {
     e.preventDefault();
     const node = document.getElementById('tree-container');
     domtoimage.toPng(node, { bgcolor: getComputedStyle(document.body).getPropertyValue('--bg-color') })
@@ -220,26 +225,28 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     document.getElementById('resultado-flujo').classList.remove('hidden');
 });
 
-// 5. MODO OSCURO
+// 5. MODO OSCURO (Botón Flotante)
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
-    darkModeToggle.textContent = '☀️ Modo Claro';
+    darkModeToggle.textContent = '🌙'; // Luna en modo oscuro
+} else {
+    darkModeToggle.textContent = '☀️'; // Sol en modo claro
 }
 darkModeToggle.addEventListener('click', (e) => {
     document.body.classList.toggle('dark-mode');
     if (document.body.classList.contains('dark-mode')) {
-        e.currentTarget.textContent = '☀️ Modo Claro';
+        e.currentTarget.textContent = '🌙';
         localStorage.setItem('theme', 'dark');
     } else {
-        e.currentTarget.textContent = '🌙 Modo Oscuro';
+        e.currentTarget.textContent = '☀️';
         localStorage.setItem('theme', 'light');
     }
 });
 
 // 6. PWA LÓGICA (Con contador de intentos)
 let deferredPrompt;
-let installAttempts = 0; // Contador de intentos de descarga
+let installAttempts = 0; 
 const installBtn = document.getElementById('install-btn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -257,18 +264,17 @@ installBtn.addEventListener('click', async () => {
         
         if (outcome === 'accepted') {
             installed = true;
-            installAttempts = 0; // Reiniciamos el contador si se instaló
+            installAttempts = 0; 
         } else {
-            installAttempts++; // El usuario rechazó la instalación
+            installAttempts++; 
         }
     } else {
-        installAttempts++; // El navegador no lanzó el prompt directo
+        installAttempts++; 
     }
 
-    // Mostrar mensaje alternativo después de 5 intentos fallidos
     if (!installed && installAttempts >= 5) {
         alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' (parece un monitor con una flecha hacia abajo) en el lado derecho de la barra de direcciones, o desde el menú (tres puntos) selecciona 'Instalar esta aplicación'.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
-        installAttempts = 0; // Reiniciamos para no saturar de mensajes
+        installAttempts = 0; 
     }
 });
 
