@@ -26,24 +26,20 @@
             <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
         </div>
         
+        <!-- MENÚ ÚNICO CON TODAS LAS OPCIONES -->
         <nav class="tabs">
             <button class="tab-btn active" onclick="showTab('org-tab', event)">Organigrama</button>
             <button class="tab-btn" onclick="showTab('info-tab', event)">Flujo de Información</button>
+            <button id="toggle-orientation" class="header-btn">↳ Cambiar Vista</button>
+            <button id="download-png" class="header-btn">🖼️ Descargar PNG</button>
+            <a href="https://drive.google.com/file/d/1wN5e8RgIU0ItgqahfzHK_7YgWJId0gsg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="header-btn">📊 Infografía</a>
+            <a href="https://www.youtube.com/watch?v=HK4veStQEUU" target="_blank" rel="noopener noreferrer" class="header-btn">🎥 Ver Video</a>
         </nav>
     </header>
 
     <!-- Pestaña 1: Organigrama -->
     <main id="org-tab" class="tab-content active">
-        <div class="controls">
-            <button id="toggle-orientation" class="action-btn">↳ Cambiar Vista</button>
-            <button id="download-png" class="action-btn">🖼️ Descargar PNG</button>
-            
-            <!-- BOTONES DE REDIRECCIÓN ACTUALIZADOS -->
-            <a href="https://drive.google.com/file/d/1wN5e8RgIU0ItgqahfzHK_7YgWJId0gsg/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="action-btn">📊 Ver Infografía</a>
-            <a href="https://www.youtube.com/watch?v=HK4veStQEUU" target="_blank" rel="noopener noreferrer" class="action-btn">🎥 Ver Video</a>
-            
-            <span class="hint">Arrastra para mover, rueda para zoom, clic en nodos para expandir.</span>
-        </div>
+        <div class="hint-bar">Arrastra para mover, rueda para zoom, clic en nodos para expandir.</div>
         <div id="tree-container"></div>
     </main>
 
