@@ -6,19 +6,19 @@
     <title>Organigrama Jefatura LAD</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
-    <!-- Carga de D3.js para el árbol interactivo -->
+    <!-- Carga de D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
     <header>
         <div class="header-content">
-            <img src="logo.png" alt="Logo Izquierdo" class="title-logo pc-logo">
+            <img src="logo.png" alt="Logo Izquierdo" class="title-logo pc-logo" onerror="this.style.display='none'">
             <div class="title-container">
-                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo">
+                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo" onerror="this.style.display='none'">
                 <h1>Organigrama Jefatura LAD</h1>
-                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo">
+                <img src="logo.png" alt="Logo Movil" class="title-logo mobile-logo" onerror="this.style.display='none'">
             </div>
-            <img src="logo.png" alt="Logo Derecho" class="title-logo pc-logo">
+            <img src="logo.png" alt="Logo Derecho" class="title-logo pc-logo" onerror="this.style.display='none'">
         </div>
         <div class="controls">
             <button id="toggle-orientation">Cambiar a Vista Vertical</button>
@@ -31,7 +31,6 @@
         <div id="tree-container"></div>
     </main>
 
-    <!-- Botón Flotante para PWA -->
     <button id="install-btn" class="fab hidden" title="Descargar Aplicación">
         📥 Descargar App
     </button>
