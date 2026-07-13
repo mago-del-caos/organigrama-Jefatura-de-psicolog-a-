@@ -20,7 +20,6 @@ const orgData = {
 };
 
 // 2. CONFIGURACIÓN D3.js
-// Inicia en horizontal porque en el HTML el botón "Organigrama vertical" pasa 'horizontal'
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
@@ -141,14 +140,14 @@ function showTab(tabId, evt) {
     setActiveTab(evt);
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    downloadFab.classList.add('hidden'); // Ocultar descarga en otras pestañas
+    downloadFab.classList.add('hidden'); 
 }
 function showOrgTab(orient, evt) {
     setActiveTab(evt);
     orientation = orient;
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById('org-tab').classList.add('active');
-    downloadFab.classList.remove('hidden'); // Mostrar descarga en organigrama
+    downloadFab.classList.remove('hidden'); 
     setTimeout(() => init(), 100);
 }
 
@@ -225,13 +224,13 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     document.getElementById('resultado-flujo').classList.remove('hidden');
 });
 
-// 5. MODO OSCURO (Botón Flotante)
+// 5. MODO OSCURO
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
-    darkModeToggle.textContent = '🌙'; // Luna en modo oscuro
+    darkModeToggle.textContent = '🌙'; 
 } else {
-    darkModeToggle.textContent = '☀️'; // Sol en modo claro
+    darkModeToggle.textContent = '☀️'; 
 }
 darkModeToggle.addEventListener('click', (e) => {
     document.body.classList.toggle('dark-mode');
@@ -244,10 +243,22 @@ darkModeToggle.addEventListener('click', (e) => {
     }
 });
 
-// 6. PWA LÓGICA (Con contador de intentos)
+// 6. PWA LÓGICA 
 let deferredPrompt;
 let installAttempts = 0; 
 const installBtn = document.getElementById('install-btn');
+
+// Ocultar botón si la app ya está instalada (modo standalone)
+window.addEventListener('load', () => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        installBtn.classList.add('hidden');
+    }
+});
+
+// Ocultar botón inmediatamente después de que el usuario la instale
+window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+});
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
@@ -265,6 +276,7 @@ installBtn.addEventListener('click', async () => {
         if (outcome === 'accepted') {
             installed = true;
             installAttempts = 0; 
+            installBtn.classList.add('hidden'); // Se oculta al aceptar
         } else {
             installAttempts++; 
         }
