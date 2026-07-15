@@ -5,17 +5,81 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 1. DATOS DEL ORGANIGRAMA
+// 1. DATOS DEL ORGANIGRAMA (Actualizados según el Informe LAD Psicología)
 const orgData = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
     children: [
-        { name: "Innovación y gestión: Mtra. Vianey Ulloa Cisneros", children: [ { name: "Prácticas Profesionales III y IV" }, { name: "Seminario de Titulación" }, { name: "Actualización de UCAs" }, { name: "Coloquios académicos" } ] },
-        { name: "Gestión académica: Mtra. Wendy González Trejo", children: [ { name: "Incidencias en AVA" }, { name: "Atención a estudiantes" }, { name: "Contenidos académicos" }, { name: "Procesos de titulación" } ] },
-        { name: "Trayectoria: Mtro. Ángel E. Hernández Martínez", children: [ { name: "Atención presencial y distancia" }, { name: "Seguimiento de ingreso" }, { name: "Plan de trabajo" }, { name: "Evaluación de foros" } ] },
-        { name: "Evaluación: Mtra. Lucía X. Pineda Medina", children: [ { name: "Indicadores de titulación" }, { name: "Eficiencia terminal" }, { name: "Satisfacción estudiantil" } ] },
-        { name: "Titulación: C. Mayra Castelán Escobar", children: [ { name: "Diagnóstico de modalidades" }, { name: "Formularios 8vo semestre" }, { name: "Bases de datos" } ] },
-        { name: "Incidencias académicas: Candidato 1", children: [ { name: "Soporte técnico plataforma" }, { name: "Canalización de casos" }, { name: "Derechos estudiantiles" } ] },
-        { name: "Calidad docente: 4 apoyos a la gestión", children: [ { name: "Revisión de ingreso" }, { name: "Evaluación de contenidos" }, { name: "Monitoreo semanal" } ] }
+        {
+            name: "Innovación y gestión del modelo educativo: Mtra. Vianey Ulloa Cisneros",
+            children: [
+                { name: "Calidad educativa, consolidación y contenidos académicos" },
+                { name: "Innovación curricular, didáctica y modelo educativo" },
+                { name: "Seguimiento Prácticas Profesionales III y IV" },
+                { name: "Seminarios de Titulación Teórico y Práctico" },
+                { name: "Actualización de UCAs y Coloquios académicos" },
+                { name: "Creación de perfiles de tutores y docentes" }
+            ]
+        },
+        {
+            name: "Gestión académica y atención estudiantil: Mtra. Wendy González Trejo",
+            children: [
+                { name: "Atención de incidencias académicas en AVA" },
+                { name: "Acompañamiento a estudiantes y docentes" },
+                { name: "Gestión y seguimiento de procesos de titulación" },
+                { name: "Sesiones informativas de titulación e idioma" },
+                { name: "Procesos administrativos emergentes" }
+            ]
+        },
+        {
+            name: "Trayectoria y permanencia estudiantil: Mtro. Ángel E. Hernández Martínez",
+            children: [
+                { name: "Atención presencial y a distancia" },
+                { name: "Seguimiento de trayectoria y casos particulares" },
+                { name: "Estrategias de retención, recuperación y regularización" },
+                { name: "Seguimiento docente (ingreso a plataforma y plan de trabajo)" }
+            ]
+        },
+        {
+            name: "Evaluación e inteligencia institucional: Mtra. Lucía X. Pineda Medina",
+            children: [
+                { name: "Informes de titulación, eficiencia terminal y satisfacción" },
+                { name: "Sistematización de información y resultados" },
+                { name: "Incorporación académico-administrativa" }
+            ]
+        },
+        {
+            name: "Ecosistemas digitales y nuevas tecnologías: Mtro. Pablo A. Rivera Juvenal",
+            children: [
+                { name: "Generación de ecosistema digital y app (Android/iOS/PC)" },
+                { name: "Tutoriales de plataforma y herramientas digitales" },
+                { name: "Alfabetización digital y consultoría TIC" }
+            ]
+        },
+        {
+            name: "Trayectoria, permanencia y titulación: C. Mayra Castelán Escobar",
+            children: [
+                { name: "Diagnóstico de modalidades de titulación (8vo semestre)" },
+                { name: "Triangulación de información y análisis" },
+                { name: "Desarrollo de bases de datos y macros" }
+            ]
+        },
+        {
+            name: "Seguimiento y atención a incidencias: Candidato 1 (Derecho/Psicología)",
+            children: [
+                { name: "Incidencias académicas y técnicas en plataforma" },
+                { name: "Atención presencial, virtual y canalización de casos" },
+                { name: "Análisis de incidencias docentes" },
+                { name: "Promoción de normas de convivencia y derechos" }
+            ]
+        },
+        {
+            name: "Gestores académicos: 4 apoyos a la gestión de calidad docente",
+            children: [
+                { name: "Seguimiento a 50 docentes cada uno (Ingreso, plan de trabajo)" },
+                { name: "Revisión de foros, tareas auténticas y recursos" },
+                { name: "Descarga de calificadores y revisión de actas" }
+            ]
+        }
     ]
 };
 
@@ -25,8 +89,8 @@ let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
-const nodeWidth = 260;
-const nodeHeight = 80;
+const nodeWidth = 320; // Ancho un poco mayor para que quepa el texto detallado
+const nodeHeight = 90;
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -248,14 +312,12 @@ let deferredPrompt;
 let installAttempts = 0; 
 const installBtn = document.getElementById('install-btn');
 
-// Ocultar botón si la app ya está instalada (modo standalone)
 window.addEventListener('load', () => {
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         installBtn.classList.add('hidden');
     }
 });
 
-// Ocultar botón inmediatamente después de que el usuario la instale
 window.addEventListener('appinstalled', () => {
     installBtn.classList.add('hidden');
 });
@@ -276,7 +338,7 @@ installBtn.addEventListener('click', async () => {
         if (outcome === 'accepted') {
             installed = true;
             installAttempts = 0; 
-            installBtn.classList.add('hidden'); // Se oculta al aceptar
+            installBtn.classList.add('hidden');
         } else {
             installAttempts++; 
         }
