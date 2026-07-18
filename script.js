@@ -40,7 +40,7 @@ const orgData = {
             ]
         },
         {
-            name: "Evaluación e inteligencia institucional: Mtra. Lucía X. Pineda Medina",
+            name: "Evaluación e inteligencia institucional: Mtra. Lucía X. Estrada Medina",
             children: [
                 { name: "Informes de titulación, eficiencia terminal y satisfacción" },
                 { name: "Sistematización de información y resultados" },
@@ -56,7 +56,7 @@ const orgData = {
             ]
         },
         {
-            name: "Trayectoria, permanencia y titulación: C. Mayra Castelán Escobar",
+            name: "Trayectoria, permanencia y titulación: C. vacante abierta",
             children: [
                 { name: "Diagnóstico de modalidades de titulación (8vo semestre)" },
                 { name: "Triangulación de información y análisis" },
@@ -64,7 +64,7 @@ const orgData = {
             ]
         },
         {
-            name: "Seguimiento y atención a incidencias: Candidato 1 (Derecho/Psicología)",
+            name: "Seguimiento y atención a incidencias: Vacante abierta (Derecho/Psicología)",
             children: [
                 { name: "Incidencias académicas y técnicas en plataforma" },
                 { name: "Atención presencial, virtual y canalización de casos" },
@@ -73,7 +73,7 @@ const orgData = {
             ]
         },
         {
-            name: "Gestores académicos: 4 apoyos a la gestión de calidad docente",
+            name: "Gestores académicos: cuatro vacantes abierta. Apoyos a la gestión de calidad docente",
             children: [
                 { name: "Seguimiento a 50 docentes cada uno (Ingreso, plan de trabajo)" },
                 { name: "Revisión de foros, tareas auténticas y recursos" },
