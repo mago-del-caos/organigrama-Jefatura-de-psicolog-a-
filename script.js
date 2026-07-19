@@ -1,7 +1,27 @@
-// REGISTRO SERVICE WORKER
+// REGISTRO SERVICE WORKER (CON DETECCIÓN DE ACTUALIZACIONES AUTOMÁTICAS)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.log('Error SW:', err));
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+            // Escuchar si hay un nuevo Service Worker esperando para activarse
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // Si hay una nueva versión descargada, fuerza la recarga
+                        console.log('Nueva versión detectada, recargando...');
+                        window.location.reload();
+                    }
+                });
+            });
+        }).catch(err => console.log('Error SW:', err));
+        
+        // Escuchar cuando el navegador toma control del nuevo SW
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            window.location.reload();
+            refreshing = true;
+        });
     });
 }
 
