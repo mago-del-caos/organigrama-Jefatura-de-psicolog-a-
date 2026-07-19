@@ -31,7 +31,7 @@ const orgData = {
             ]
         },
         {
-            name: "Trayectoria y permanencia estudiantil: Mtro. Ángel E. Hernández Martínez",
+            name: "Trayectoria y permanencia estudiantil: Mtro. Ángel Emanuel Hernández Martínez",
             children: [
                 { name: "Atención presencial y a distancia" },
                 { name: "Seguimiento de trayectoria y casos particulares" },
@@ -40,7 +40,7 @@ const orgData = {
             ]
         },
         {
-            name: "Evaluación e inteligencia institucional: Mtra. Lucía X. Estrada Medina",
+            name: "Evaluación e inteligencia institucional: Mtra. Lucía Xóchitl Estrada Medina",
             children: [
                 { name: "Informes de titulación, eficiencia terminal y satisfacción" },
                 { name: "Sistematización de información y resultados" },
@@ -48,7 +48,7 @@ const orgData = {
             ]
         },
         {
-            name: "Ecosistemas digitales y nuevas tecnologías: Mtro. Pablo A. Rivera Juvenal",
+            name: "Ecosistemas digitales y nuevas tecnologías: Mtro. Pablo Adrian Rivera Juvenal",
             children: [
                 { name: "Generación de ecosistema digital y app (Android/iOS/PC)" },
                 { name: "Tutoriales de plataforma y herramientas digitales" },
