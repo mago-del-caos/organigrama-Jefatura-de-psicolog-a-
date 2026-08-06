@@ -37,7 +37,7 @@ const orgData = {
                 { name: "Seguimiento Prácticas Profesionales III y IV" },
                 { name: "Seminarios de Titulación Teórico y Práctico" },
                 { name: "Actualización de UCAs y Coloquios académicos" },
-                { name: "Creación de perfiles de tutores y docentes" }
+                
             ]
         },
         {
@@ -95,7 +95,7 @@ const orgData = {
         {
             name: "Gestores académicos: cuatro vacantes abierta. Apoyos a la gestión de calidad docente",
             children: [
-                { name: "Seguimiento a 50 docentes cada uno (Ingreso, plan de trabajo)" },
+                { name: "Seguimiento a 42 docentes cada uno (Ingreso, plan de trabajo)" },
                 { name: "Revisión de foros, tareas auténticas y recursos" },
                 { name: "Descarga de calificadores y revisión de actas" }
             ]
