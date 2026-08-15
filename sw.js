@@ -1,4 +1,4 @@
-const CACHE_NAME = 'organigrama-lad-v1.0.3'; // 👈 SUBE ESTE NÚMERO CADA VEZ QUE HAGAS UN CAMBIO EN TU CÓDIGO
+const CACHE_NAME = 'organigrama-lad-v1.0.4'; // 👈 SUBE ESTE NÚMERO CADA VEZ QUE HAGAS UN CAMBIO EN TU CÓDIGO
 
 // Archivos principales que se guardan para que funcione sin internet
 const urlsToCache = [
