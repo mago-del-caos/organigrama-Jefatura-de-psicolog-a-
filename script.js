@@ -51,7 +51,7 @@ const orgData = {
             ]
         },
         {
-            name: "Trayectoria y permanencia estudiantil: Mtro. Ángel Emanuel Hernández Martínez",
+            name: "Trayectoria y permanencia estudiantil: Vacante",
             children: [
                 { name: "Atención presencial y a distancia" },
                 { name: "Seguimiento de trayectoria y casos particulares" },
