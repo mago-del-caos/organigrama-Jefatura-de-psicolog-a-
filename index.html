@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organigrama Jefatura LAD | UNRC</title>
+    <title>Organigrama LAD Psicología | UNRC</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,7 @@
             <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
             <div class="title-container">
                 <img src="logo.jpeg" alt="Logo UNRC" class="title-logo mobile-logo" onerror="this.style.display='none'">
-                <h1>Jefatura LAD</h1>
+                <h1>Jefatura LAD - Psicología</h1>
                 <p class="subtitle">Universidad Nacional Rosario Castellanos</p>
             </div>
             <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
@@ -27,7 +27,7 @@
         <nav class="tabs">
             <button id="btn-org-vertical" class="tab-btn active" onclick="showOrgTab('horizontal', event)">Organigrama vertical</button>
             <button id="btn-org-horizontal" class="tab-btn" onclick="showOrgTab('vertical', event)">Organigrama horizontal</button>
-            <button class="tab-btn" onclick="showTab('info-tab', event)">Flujo de trabajo</button>
+            <button class="tab-btn" onclick="showTab('info-tab', event)">Rutas de Flujo Operativo</button>
             <a href="https://docs.google.com/document/d/1TTBOf4XMc-vCFaJLLMF8BoF2QEaAM_RzNtV1Pq47U24/edit?usp=sharing" class="tab-btn" target="_blank" rel="noopener noreferrer">📄 Informe</a>
             <a href="https://canva.link/3wsbj6uwjuy4i6j" class="tab-btn" target="_blank" rel="noopener noreferrer">📊 Presentación</a>
             <a href="https://youtu.be/zRWh9Lj6rQw?si=46hkmTPwf-nABBkZ" class="tab-btn" target="_blank" rel="noopener noreferrer">🎥 Video explicativo</a>
@@ -35,31 +35,31 @@
     </header>
 
     <main id="org-tab" class="tab-content active">
-        <div class="hint-bar">Arrastra para mover, rueda para zoom, clic en nodos para expandir.</div>
+        <div class="hint-bar">Arrastra para mover, rueda para zoom, clic en nodos para expandir la estructura de Apoyos y Gestores.</div>
         <div id="tree-container"></div>
     </main>
 
     <main id="info-tab" class="tab-content">
         <div class="info-container">
-            <h2>Flujo de Trabajo</h2>
-            <p>Selecciona el origen y el destino. El sistema calculará la ruta jerárquica (como en un árbol genealógico), mostrando por dónde fluye la información.</p>
+            <h2>Flujo Operativo y Canalización</h2>
+            <p>Selecciona el área de origen y el destino. El sistema calculará la ruta de canalización jerárquica, reflejando cómo fluye la información, las incidencias en plataforma (AVA) y el seguimiento institucional hacia la Jefatura de Carrera.</p>
             
             <div class="form-row">
                 <div class="form-group">
-                    <label for="origen">Origen (¿Quién envía?)</label>
+                    <label for="origen">Origen (¿Quién reporta o canaliza?)</label>
                     <select id="origen" class="custom-select"></select>
                 </div>
                 <div class="form-arrow">➔</div>
                 <div class="form-group">
-                    <label for="destino">Fin (¿Quién recibe?)</label>
+                    <label for="destino">Fin (¿Quién recibe o determina?)</label>
                     <select id="destino" class="custom-select"></select>
                 </div>
             </div>
 
-            <button id="calc-ruta" class="action-btn" style="margin-top: 20px;">Calcular Ruta</button>
+            <button id="calc-ruta" class="action-btn" style="margin-top: 20px;">Calcular Ruta Institucional</button>
 
             <div id="resultado-flujo" class="result-card hidden">
-                <h3>Resultado del Flujo</h3>
+                <h3>Resultado del Flujo de Comunicación</h3>
                 <p id="personas-entre" class="big-text"></p>
                 <div class="flow-path-container">
                     <p id="ruta-flujo" class="flow-path"></p>
