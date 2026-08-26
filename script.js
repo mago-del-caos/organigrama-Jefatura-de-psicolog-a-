@@ -2,12 +2,10 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(registration => {
-            // Escuchar si hay un nuevo Service Worker esperando para activarse
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
                 newWorker.addEventListener('statechange', () => {
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Si hay una nueva versión descargada, fuerza la recarga
                         console.log('Nueva versión detectada, recargando...');
                         window.location.reload();
                     }
@@ -15,7 +13,6 @@ if ('serviceWorker' in navigator) {
             });
         }).catch(err => console.log('Error SW:', err));
         
-        // Escuchar cuando el navegador toma control del nuevo SW
         let refreshing;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (refreshing) return;
@@ -25,79 +22,74 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 1. DATOS DEL ORGANIGRAMA (Actualizados según el Informe LAD Psicología)
+// 1. DATOS DEL ORGANIGRAMA (Actualizados al Informe de Fortalecimiento Operativo LAD)
 const orgData = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
     children: [
         {
-            name: "Innovación y gestión del modelo educativo: Mtra. Vianey Ulloa Cisneros",
+            name: "Apoyo 1. Planeación y seguimiento académico-curricular",
             children: [
-                { name: "Calidad educativa, consolidación y contenidos académicos" },
-                { name: "Innovación curricular, didáctica y modelo educativo" },
-                { name: "Seguimiento Prácticas Profesionales III y IV" },
-                { name: "Seminarios de Titulación Teórico y Práctico" },
-                { name: "Actualización de UCAs y Coloquios académicos" },
-                
+                { name: "Desarrollo, revisión y actualización de UCA" },
+                { name: "Planear actividades y coloquios académicos" },
+                { name: "Proponer la oferta de UCA y grupos" }
             ]
         },
         {
-            name: "Gestión académica y atención estudiantil: Mtra. Wendy González Trejo",
+            name: "Apoyo 2. Gestión y acompañamiento docente",
             children: [
-                { name: "Atención de incidencias académicas en AVA" },
-                { name: "Acompañamiento a estudiantes y docentes" },
-                { name: "Gestión y seguimiento de procesos de titulación" },
-                { name: "Sesiones informativas de titulación e idioma" },
-                { name: "Procesos administrativos emergentes" }
+                { name: "Proyección, selección y asignación docente" },
+                { name: "Inducción y capacitación de nuevo ingreso" },
+                { name: "Promover estrategias 3R y uso de guías institucionales" },
+                { name: "Canalizar incidencias del desempeño docente" }
             ]
         },
         {
-            name: "Trayectoria y permanencia estudiantil: Vacante",
+            name: "Apoyo 3. Trayectoria académica, permanencia y atención",
             children: [
-                { name: "Atención presencial y a distancia" },
-                { name: "Seguimiento de trayectoria y casos particulares" },
-                { name: "Estrategias de retención, recuperación y regularización" },
-                { name: "Seguimiento docente (ingreso a plataforma y plan de trabajo)" }
+                { name: "Atención presencial (Sede GAM) y estrategias de permanencia" },
+                { name: "Seguimiento de estrategias de retención y regularización" },
+                { name: "Estudiantes en riesgo y vulneración de derechos" }
             ]
         },
         {
-            name: "Evaluación e inteligencia institucional: Mtra. Lucía Xóchitl Estrada Medina",
+            name: "Apoyo 4. Prácticas profesionales, egreso y titulación",
             children: [
-                { name: "Informes de titulación, eficiencia terminal y satisfacción" },
-                { name: "Sistematización de información y resultados" },
-                { name: "Incorporación académico-administrativa" }
+                { name: "Canalización en procesos de titulación" },
+                { name: "Seguimiento a UCA de prácticas (Plan 2020 y 2023)" },
+                { name: "Acompañamiento a egresados y grupos de vinculación" }
             ]
         },
         {
-            name: "Ecosistemas digitales y nuevas tecnologías: Mtro. Pablo Adrian Rivera Juvenal",
+            name: "Apoyo 5. Seguimiento, evaluación y documentación institucional",
             children: [
-                { name: "Generación de ecosistema digital y app (Android/iOS/PC)" },
-                { name: "Tutoriales de plataforma y herramientas digitales" },
-                { name: "Alfabetización digital y consultoría TIC" }
+                { name: "Integrar indicadores (eficiencia terminal y titulación)" },
+                { name: "Informes trimestrales y anuales universitarios" },
+                { name: "Elaborar notas y documentación institucional" }
             ]
         },
         {
-            name: "Trayectoria, permanencia y titulación: C. vacante abierta",
+            name: "Apoyo 6. Atención y seguimiento de incidencias",
             children: [
-                { name: "Diagnóstico de modalidades de titulación (8vo semestre)" },
-                { name: "Triangulación de información y análisis" },
-                { name: "Desarrollo de bases de datos y macros" }
+                { name: "Gestión continua de correos de la Licenciatura" },
+                { name: "Identificar rutas de canalización o atención directa" },
+                { name: "Seguimiento a incidencias reportadas por Tutoría" }
             ]
         },
         {
-            name: "Seguimiento y atención a incidencias: Vacante abierta (Derecho/Psicología)",
+            name: "Apoyo 7. Acompañamiento, comunicación y seguimiento",
             children: [
-                { name: "Incidencias académicas y técnicas en plataforma" },
-                { name: "Atención presencial, virtual y canalización de casos" },
-                { name: "Análisis de incidencias docentes" },
-                { name: "Promoción de normas de convivencia y derechos" }
+                { name: "Canal de avisos para estudiantes de 1er semestre" },
+                { name: "Formularios de seguimiento a necesidades emergentes" },
+                { name: "Diagnóstico de modalidades de titulación" }
             ]
         },
         {
-            name: "Gestores académicos: cuatro vacantes abierta. Apoyos a la gestión de calidad docente",
+            name: "Gestores Académicos",
             children: [
-                { name: "Seguimiento a 42 docentes cada uno (Ingreso, plan de trabajo)" },
-                { name: "Revisión de foros, tareas auténticas y recursos" },
-                { name: "Descarga de calificadores y revisión de actas" }
+                { name: "Seguimiento al ingreso y trabajo docente en AVA" },
+                { name: "Validación de foros, tareas auténticas y evaluaciones" },
+                { name: "Reporte de incidencias técnicas y de desempeño" },
+                { name: "Revisión de entrega de actas y descargables" }
             ]
         }
     ]
@@ -109,8 +101,8 @@ let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
-const nodeWidth = 320; // Ancho un poco mayor para que quepa el texto detallado
-const nodeHeight = 90;
+const nodeWidth = 340; // Expandido para el nuevo formato
+const nodeHeight = 100; // Expandido para mejor legibilidad
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -251,7 +243,7 @@ downloadFab.addEventListener('click', (e) => {
         });
 });
 
-// 4. LÓGICA DE FLUJO DE TRABAJO
+// 4. LÓGICA DE FLUJO DE TRABAJO (Adaptado a Flujo Institucional)
 const allNodes = d3.hierarchy(orgData).descendants().map(d => d.data.name);
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
@@ -271,7 +263,7 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     const valDestino = selectDestino.value;
     
     if(valOrigen === valDestino) {
-        alert("El origen y el fin deben ser diferentes.");
+        alert("El origen y el destino deben ser áreas diferentes.");
         return;
     }
 
@@ -298,9 +290,9 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
         }
     });
 
-    let textoResultado = `Hay ${intermedios} persona(s) en la ruta media.`;
+    let textoResultado = `La canalización requiere pasar por ${intermedios} instancia(s) intermedias.`;
     if (intermedios === 0) {
-        textoResultado = "Comunicación directa (no hay intermediarios).";
+        textoResultado = "Canalización y comunicación directa (sin áreas intermedias).";
     }
 
     document.getElementById('personas-entre').innerText = textoResultado;
