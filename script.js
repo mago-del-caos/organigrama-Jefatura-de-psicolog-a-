@@ -22,8 +22,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 1. DATOS DEL ORGANIGRAMA (Actualizados al Informe de Fortalecimiento Operativo LAD)
-const orgData = {
+// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN (Cloudflare KV + LocalStorage)
+const DEFAULT_ORG_DATA = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
     children: [
         {
@@ -95,14 +95,52 @@ const orgData = {
     ]
 };
 
+// Cargar datos desde localStorage inicialmente
+let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
+
+// URL de tu API en Cloudflare Worker (ajusta con tu subdominio o dominio personalizado cuando esté activo)
+const CLOUDFLARE_API_URL = "https://tu-worker.tu-subdominio.workers.dev/api/org"; 
+
+async function loadOrgDataFromCloud() {
+    try {
+        const response = await fetch(CLOUDFLARE_API_URL);
+        if (response.ok) {
+            const cloudData = await response.json();
+            orgData = cloudData;
+            localStorage.setItem('org_lad_data', JSON.stringify(cloudData));
+            init();
+            updateWorkflowSelects();
+        }
+    } catch (err) {
+        console.log("Modo offline o sin conexión al Worker, usando datos locales.");
+    }
+}
+
+async function saveOrgData() {
+    // Guardar localmente como respaldo inmediato
+    localStorage.setItem('org_lad_data', JSON.stringify(orgData));
+    updateWorkflowSelects();
+
+    // Sincronizar en segundo plano con Cloudflare KV
+    try {
+        await fetch(CLOUDFLARE_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orgData)
+        });
+    } catch (err) {
+        console.log("Sincronización en nube pendiente (offline).");
+    }
+}
+
 // 2. CONFIGURACIÓN D3.js
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
-const nodeWidth = 340; // Expandido para el nuevo formato
-const nodeHeight = 100; // Expandido para mejor legibilidad
+const nodeWidth = 340; 
+const nodeHeight = 100; 
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -130,7 +168,12 @@ function init() {
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
     root.y0 = 0;
-    root.children.forEach(collapse);
+    
+    if (root.children) {
+        root.children.forEach(d => {
+            if (d.children) d.children.forEach(collapseDeep);
+        });
+    }
     update(root);
     
     let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
@@ -138,8 +181,8 @@ function init() {
     svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.85));
 }
 
-function collapse(d) {
-    if (d.children) { d._children = d.children; d._children.forEach(collapse); d.children = null; }
+function collapseDeep(d) {
+    if (d.children) { d._children = d.children; d._children.forEach(collapseDeep); d.children = null; }
 }
 
 function update(source) {
@@ -148,9 +191,10 @@ function update(source) {
     const links = treeData.descendants().slice(1);
 
     const node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++i));
+    
     const nodeEnter = node.enter().append("g").attr("class", "node")
         .attr("transform", d => orientation === "horizontal" ? `translate(${source.y0},${source.x0})` : `translate(${source.x0},${source.y0})`)
-        .on("click", click);
+        .on("click", clickNode);
 
     nodeEnter.append("rect")
         .attr("width", nodeWidth).attr("height", nodeHeight)
@@ -197,13 +241,149 @@ function diagonal(s, d) {
         : `M ${s.x} ${s.y} C ${s.x} ${(s.y + d.y) / 2}, ${d.x} ${(s.y + d.y) / 2}, ${d.x} ${d.y}`;
 }
 
-function click(event, d) {
+function clickNode(event, d) {
     if (d.children) { d._children = d.children; d.children = null; } 
     else { d.children = d._children; d._children = null; }
     update(d);
 }
 
-// 3. LÓGICA DE INTERFAZ
+
+// 3. LÓGICA DE EDICIÓN DIRECTA DE NODOS (MODAL)
+let selectedNodeTarget = null;
+const editModal = document.getElementById('edit-modal');
+const editFab = document.getElementById('edit-mode-fab');
+const closeModalBtn = document.getElementById('close-modal');
+const nodeNameInput = document.getElementById('node-name-input');
+const modalNodeTitle = document.getElementById('modal-node-title');
+
+editFab.addEventListener('click', () => {
+    selectedNodeTarget = root;
+    nodeNameInput.value = root.data.name;
+    modalNodeTitle.textContent = `Editando Nodo Principal:`;
+    editModal.classList.remove('hidden');
+});
+
+closeModalBtn.addEventListener('click', () => {
+    editModal.classList.add('hidden');
+});
+
+// Doble clic en cualquier nodo abre el gestor de edición
+document.addEventListener('dblclick', (e) => {
+    const targetGroup = e.target.closest('.node');
+    if (targetGroup) {
+        const d3Node = d3.select(targetGroup).datum();
+        if (d3Node) {
+            selectedNodeTarget = d3Node;
+            nodeNameInput.value = d3Node.data.name;
+            modalNodeTitle.textContent = `Gestionando nodo: ${d3Node.data.name}`;
+            editModal.classList.remove('hidden');
+        }
+    }
+});
+
+// Añadir subnodo
+document.getElementById('btn-add-child').addEventListener('click', () => {
+    if (!selectedNodeTarget) return;
+    const newName = nodeNameInput.value.trim();
+    if (!newName) {
+        alert("Escribe un nombre válido para el nuevo nodo.");
+        return;
+    }
+
+    if (!selectedNodeTarget.data.children) {
+        selectedNodeTarget.data.children = [];
+    }
+    selectedNodeTarget.data.children.push({ name: newName });
+    
+    saveOrgData();
+    editModal.classList.add('hidden');
+    init();
+});
+
+// Renombrar nodo
+document.getElementById('btn-edit-node').addEventListener('click', () => {
+    if (!selectedNodeTarget) return;
+    const newName = nodeNameInput.value.trim();
+    if (!newName) {
+        alert("El nombre no puede estar vacío.");
+        return;
+    }
+
+    selectedNodeTarget.data.name = newName;
+    saveOrgData();
+    editModal.classList.add('hidden');
+    init();
+});
+
+// Eliminar nodo
+document.getElementById('btn-delete-node').addEventListener('click', () => {
+    if (!selectedNodeTarget) return;
+    if (selectedNodeTarget === root) {
+        alert("No puedes eliminar el nodo raíz principal.");
+        return;
+    }
+    if (!confirm(`¿Estás seguro de eliminar el nodo "${selectedNodeTarget.data.name}" y sus subniveles?`)) return;
+
+    const parent = selectedNodeTarget.parent;
+    if (parent && parent.data.children) {
+        parent.data.children = parent.data.children.filter(child => child !== selectedNodeTarget.data);
+        if (parent.data.children.length === 0) delete parent.data.children;
+    }
+
+    saveOrgData();
+    editModal.classList.add('hidden');
+    init();
+});
+
+// Exportar JSON para actualizar repositorio
+document.getElementById('btn-export-json').addEventListener('click', () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orgData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "orgData.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+});
+
+// Importar JSON
+const importFileInput = document.getElementById('import-file-input');
+document.getElementById('btn-import-json').addEventListener('click', () => {
+    importFileInput.click();
+});
+
+importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            const parsed = JSON.parse(evt.target.result);
+            orgData = parsed;
+            saveOrgData();
+            init();
+            editModal.classList.add('hidden');
+            alert("Organigrama importado con éxito.");
+        } catch (err) {
+            alert("El archivo JSON no es válido.");
+        }
+    };
+    reader.readAsText(file);
+});
+
+// Restaurar original institucional
+document.getElementById('btn-reset-org').addEventListener('click', () => {
+    if (confirm("¿Restaurar el organigrama a su estado original? Se perderán los cambios locales.")) {
+        localStorage.removeItem('org_lad_data');
+        orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
+        saveOrgData();
+        init();
+        editModal.classList.add('hidden');
+    }
+});
+
+
+// 4. LÓGICA DE INTERFAZ & TABS
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -243,20 +423,26 @@ downloadFab.addEventListener('click', (e) => {
         });
 });
 
-// 4. LÓGICA DE FLUJO DE TRABAJO (Adaptado a Flujo Institucional)
-const allNodes = d3.hierarchy(orgData).descendants().map(d => d.data.name);
+// 5. LÓGICA DE FLUJO DE TRABAJO
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
-allNodes.forEach(name => {
-    let opt1 = document.createElement('option');
-    opt1.value = opt1.innerHTML = name;
-    selectOrigen.appendChild(opt1);
-    
-    let opt2 = document.createElement('option');
-    opt2.value = opt2.innerHTML = name;
-    selectDestino.appendChild(opt2);
-});
+function updateWorkflowSelects() {
+    selectOrigen.innerHTML = "";
+    selectDestino.innerHTML = "";
+    const allNodesList = d3.hierarchy(orgData).descendants().map(d => d.data.name);
+
+    allNodesList.forEach(name => {
+        let opt1 = document.createElement('option');
+        opt1.value = opt1.innerHTML = name;
+        selectOrigen.appendChild(opt1);
+        
+        let opt2 = document.createElement('option');
+        opt2.value = opt2.innerHTML = name;
+        selectDestino.appendChild(opt2);
+    });
+}
+updateWorkflowSelects();
 
 document.getElementById('calc-ruta').addEventListener('click', () => {
     const valOrigen = selectOrigen.value;
@@ -271,6 +457,11 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     const nodeOrigen = rootCalc.find(d => d.data.name === valOrigen);
     const nodeDestino = rootCalc.find(d => d.data.name === valDestino);
     
+    if (!nodeOrigen || !nodeDestino) {
+        alert("No se encontró una de las áreas seleccionadas.");
+        return;
+    }
+
     const path = nodeOrigen.path(nodeDestino);
     const intermedios = path.length - 2;
     
@@ -300,7 +491,7 @@ document.getElementById('calc-ruta').addEventListener('click', () => {
     document.getElementById('resultado-flujo').classList.remove('hidden');
 });
 
-// 5. MODO OSCURO
+// 6. MODO OSCURO
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
@@ -319,7 +510,7 @@ darkModeToggle.addEventListener('click', (e) => {
     }
 });
 
-// 6. PWA LÓGICA 
+// 7. PWA LÓGICA 
 let deferredPrompt;
 let installAttempts = 0; 
 const installBtn = document.getElementById('install-btn');
@@ -359,13 +550,17 @@ installBtn.addEventListener('click', async () => {
     }
 
     if (!installed && installAttempts >= 5) {
-        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' (parece un monitor con una flecha hacia abajo) en el lado derecho de la barra de direcciones, o desde el menú (tres puntos) selecciona 'Instalar esta aplicación'.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
+        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' en la barra de direcciones.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
         installAttempts = 0; 
     }
 });
 
-// Inicializar
-window.addEventListener('load', () => { init(); });
+// Inicializar al cargar la página
+window.addEventListener('load', () => { 
+    loadOrgDataFromCloud();
+    init(); 
+});
+
 let resizeTimer;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
