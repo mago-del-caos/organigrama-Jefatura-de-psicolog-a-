@@ -12,13 +12,6 @@ if ('serviceWorker' in navigator) {
                 });
             });
         }).catch(err => console.log('Error SW:', err));
-        
-        let refreshing;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            window.location.reload();
-            refreshing = true;
-        });
     });
 }
 
@@ -132,7 +125,7 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js
+// 2. CONFIGURACIÓN D3.js (BOTONES INTEGRADOS)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
@@ -140,7 +133,6 @@ const duration = 750;
 const container = document.getElementById("tree-container");
 const nodeWidth = 340; 
 const nodeHeight = 100; 
-let selectedNodeTarget = null; // Variable para saber qué nodo editaremos
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -192,18 +184,9 @@ function update(source) {
 
     const node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++i));
     
-    // CORRECCIÓN: Evento clic y clic derecho integrados
     const nodeEnter = node.enter().append("g").attr("class", "node")
         .attr("transform", d => orientation === "horizontal" ? `translate(${source.y0},${source.x0})` : `translate(${source.x0},${source.y0})`)
-        .on("click", clickNode)
-        .on("contextmenu", function(event, d) {
-            event.preventDefault(); // Evita que salga el menú del navegador
-            if (!isAdmin) return;
-            selectedNodeTarget = d;
-            nodeNameInput.value = d.data.name;
-            modalNodeTitle.textContent = `Gestionando nodo: ${d.data.name}`;
-            editModal.classList.remove('hidden');
-        });
+        .on("click", clickNode);
 
     nodeEnter.append("rect")
         .attr("width", nodeWidth).attr("height", nodeHeight)
@@ -212,20 +195,45 @@ function update(source) {
         .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR)
         .style("stroke", TERTIARY_COLOR).style("stroke-width", "2px").style("filter", "url(#drop-shadow)");
 
-    nodeEnter.append("foreignObject")
+    // CONTENEDOR HTML DEL NODO (FLEXBOX)
+    const foDiv = nodeEnter.append("foreignObject")
         .attr("width", nodeWidth - 20).attr("height", nodeHeight - 10)
         .attr("x", -(nodeWidth/2) + 10).attr("y", -(nodeHeight/2) + 5)
         .append("xhtml:div")
-        .style("display", "flex").style("align-items", "center").style("justify-content", "center")
-        .style("text-align", "center").style("width", "100%").style("height", "100%")
+        .style("display", "flex").style("flex-direction", "column").style("height", "100%");
+
+    // TEXTO DEL NODO
+    foDiv.append("div")
+        .attr("class", "node-text")
+        .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
+        .style("justify-content", "center").style("text-align", "center")
         .style("color", "#ffffff").style("font-family", "'Noto Sans', sans-serif")
-        .style("font-size", "13px").style("font-weight", "500").style("pointer-events", "none")
+        .style("font-size", "13px").style("font-weight", "500")
         .html(d => d.data.name);
 
+    // BOTONES DE ACCIÓN (Aparecen solo si isAdmin === true)
+    const actions = foDiv.append("div")
+        .attr("class", "node-actions")
+        .style("display", isAdmin ? "flex" : "none")
+        .style("justify-content", "center").style("gap", "15px").style("padding-bottom", "5px");
+
+    actions.append("button").html("✏️").attr("title", "Editar").attr("class", "node-btn")
+        .on("click", (event, d) => { event.stopPropagation(); promptEditNode(d); });
+
+    actions.append("button").html("➕").attr("title", "Añadir subnodo").attr("class", "node-btn")
+        .on("click", (event, d) => { event.stopPropagation(); promptAddChild(d); });
+
+    actions.append("button").html("❌").attr("title", "Eliminar nodo").attr("class", "node-btn")
+        .on("click", (event, d) => { event.stopPropagation(); promptDeleteNode(d); });
+
+    // ACTUALIZAR NODOS
     const nodeUpdate = nodeEnter.merge(node);
     nodeUpdate.transition().duration(duration)
         .attr("transform", d => orientation === "horizontal" ? `translate(${d.y},${d.x})` : `translate(${d.x},${d.y})`);
+    
     nodeUpdate.select("rect").style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR);
+    nodeUpdate.select(".node-text").html(d => d.data.name);
+    nodeUpdate.select(".node-actions").style("display", isAdmin ? "flex" : "none");
 
     const nodeExit = node.exit().transition().duration(duration)
         .attr("transform", d => orientation === "horizontal" ? `translate(${source.y},${source.x})` : `translate(${source.x},${source.y})`).remove();
@@ -251,21 +259,58 @@ function diagonal(s, d) {
 }
 
 function clickNode(event, d) {
-    selectedNodeTarget = d; // Guarda en memoria cuál fue el último nodo clickeado
     if (d.children) { d._children = d.children; d.children = null; } 
     else { d.children = d._children; d._children = null; }
     update(d);
 }
 
+// 3. FUNCIONES DIRECTAS DE EDICIÓN (Prompts rápidos)
+function promptEditNode(d) {
+    const newName = prompt("Editar nombre del cargo o área:", d.data.name);
+    if (newName !== null && newName.trim() !== "") {
+        d.data.name = newName.trim();
+        saveOrgData();
+        init(); 
+    }
+}
 
-// 3. LÓGICA DE CONTROL DE ACCESO (GATEKEEPER)
+function promptAddChild(d) {
+    const newName = prompt("Escribe el nombre del nuevo subnodo:");
+    if (newName !== null && newName.trim() !== "") {
+        if (!d.data.children) d.data.children = [];
+        d.data.children.push({ name: newName.trim() });
+        // Expande automáticamente el nodo para ver al nuevo hijo
+        if (d._children) { d.children = d._children; d._children = null; }
+        saveOrgData();
+        init(); 
+    }
+}
+
+function promptDeleteNode(d) {
+    if (d === root) {
+        alert("El nodo principal (raíz) no se puede eliminar.");
+        return;
+    }
+    if (confirm(`¿Estás seguro de eliminar "${d.data.name}" y todos sus subniveles?`)) {
+        const parent = d.parent;
+        if (parent && parent.data.children) {
+            parent.data.children = parent.data.children.filter(child => child !== d.data);
+            if (parent.data.children.length === 0) delete parent.data.children;
+        }
+        saveOrgData();
+        init();
+    }
+}
+
+
+// 4. LÓGICA DE CONTROL DE ACCESO (GATEKEEPER)
 const authScreen = document.getElementById('auth-screen');
-const editFab = document.getElementById('edit-mode-fab');
+const settingsFab = document.getElementById('settings-fab');
 
 document.getElementById('btn-guest-login').addEventListener('click', () => {
     isAdmin = false;
     authScreen.classList.add('hidden');
-    if (editFab) editFab.classList.add('hidden'); 
+    if (settingsFab) settingsFab.classList.add('hidden'); 
     loadOrgDataFromCloud();
 });
 
@@ -274,78 +319,27 @@ document.getElementById('btn-admin-login').addEventListener('click', () => {
     if (pass === "psique33") {
         isAdmin = true;
         authScreen.classList.add('hidden');
-        if (editFab) editFab.classList.remove('hidden'); 
-        loadOrgDataFromCloud();
+        if (settingsFab) settingsFab.classList.remove('hidden'); 
+        loadOrgDataFromCloud(); // Al cargar, "init" mostrará los botones de editar en los nodos
     } else {
         alert("Contraseña incorrecta. Intenta de nuevo.");
     }
 });
 
-// 4. LÓGICA DE EDICIÓN DIRECTA DE NODOS
-const editModal = document.getElementById('edit-modal');
-const closeModalBtn = document.getElementById('close-modal');
-const nodeNameInput = document.getElementById('node-name-input');
-const modalNodeTitle = document.getElementById('modal-node-title');
 
-// CORRECCIÓN: Botón FAB ahora edita el último nodo seleccionado
-if (editFab) {
-    editFab.addEventListener('click', () => {
+// 5. MODAL DE AJUSTES (Exportar/Importar/Reset)
+const settingsModal = document.getElementById('settings-modal');
+const closeModalBtn = document.getElementById('close-modal');
+
+if (settingsFab) {
+    settingsFab.addEventListener('click', () => {
         if (!isAdmin) return;
-        if (!selectedNodeTarget) selectedNodeTarget = root; // Si no hay nada seleccionado, elige la raíz
-        nodeNameInput.value = selectedNodeTarget.data.name;
-        modalNodeTitle.textContent = `Gestionando nodo: ${selectedNodeTarget.data.name}`;
-        editModal.classList.remove('hidden');
+        settingsModal.classList.remove('hidden');
     });
 }
-
 if (closeModalBtn) {
     closeModalBtn.addEventListener('click', () => {
-        editModal.classList.add('hidden');
-    });
-}
-
-const btnAddChild = document.getElementById('btn-add-child');
-if (btnAddChild) {
-    btnAddChild.addEventListener('click', () => {
-        if (!selectedNodeTarget) return;
-        const newName = nodeNameInput.value.trim();
-        if (!newName) { alert("Escribe un nombre válido."); return; }
-        if (!selectedNodeTarget.data.children) selectedNodeTarget.data.children = [];
-        selectedNodeTarget.data.children.push({ name: newName });
-        saveOrgData();
-        editModal.classList.add('hidden');
-        init(); // Recargar árbol
-    });
-}
-
-const btnEditNode = document.getElementById('btn-edit-node');
-if (btnEditNode) {
-    btnEditNode.addEventListener('click', () => {
-        if (!selectedNodeTarget) return;
-        const newName = nodeNameInput.value.trim();
-        if (!newName) { alert("El nombre no puede estar vacío."); return; }
-        selectedNodeTarget.data.name = newName;
-        saveOrgData();
-        editModal.classList.add('hidden');
-        init();
-    });
-}
-
-const btnDeleteNode = document.getElementById('btn-delete-node');
-if (btnDeleteNode) {
-    btnDeleteNode.addEventListener('click', () => {
-        if (!selectedNodeTarget) return;
-        if (selectedNodeTarget === root) { alert("No puedes eliminar el nodo raíz principal."); return; }
-        if (!confirm(`¿Estás seguro de eliminar el nodo "${selectedNodeTarget.data.name}"?`)) return;
-
-        const parent = selectedNodeTarget.parent;
-        if (parent && parent.data.children) {
-            parent.data.children = parent.data.children.filter(child => child !== selectedNodeTarget.data);
-            if (parent.data.children.length === 0) delete parent.data.children;
-        }
-        saveOrgData();
-        editModal.classList.add('hidden');
-        init();
+        settingsModal.classList.add('hidden');
     });
 }
 
@@ -355,7 +349,7 @@ if (btnExportJson) {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orgData, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "orgData.json");
+        downloadAnchor.setAttribute("download", "orgData_Respaldo.json");
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
@@ -375,8 +369,8 @@ if (btnImportJson && importFileInput) {
                 orgData = JSON.parse(evt.target.result);
                 saveOrgData();
                 init();
-                editModal.classList.add('hidden');
-                alert("Organigrama importado con éxito.");
+                settingsModal.classList.add('hidden');
+                alert("Organigrama restaurado con éxito.");
             } catch (err) { alert("Archivo JSON no válido."); }
         };
         reader.readAsText(file);
@@ -386,18 +380,18 @@ if (btnImportJson && importFileInput) {
 const btnResetOrg = document.getElementById('btn-reset-org');
 if (btnResetOrg) {
     btnResetOrg.addEventListener('click', () => {
-        if (confirm("¿Restaurar el organigrama original?")) {
+        if (confirm("¿Estás seguro de restaurar el organigrama original de la Jefatura? Se perderán los cambios en la nube.")) {
             localStorage.removeItem('org_lad_data');
             orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
             saveOrgData();
             init();
-            editModal.classList.add('hidden');
+            settingsModal.classList.add('hidden');
         }
     });
 }
 
 
-// 5. LÓGICA DE INTERFAZ & TABS
+// 6. LÓGICA DE INTERFAZ, TABS Y FLUJO
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -436,7 +430,6 @@ if (downloadFab) {
     });
 }
 
-// 6. LÓGICA DE FLUJO DE TRABAJO
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
