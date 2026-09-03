@@ -55,7 +55,7 @@
     </header>
 
     <main id="org-tab" class="tab-content active">
-        <div class="hint-bar">Arrastra para mover, rueda para zoom. Clic derecho (o pulsación larga) en un nodo para editar (solo Admin).</div>
+        <div class="hint-bar">Arrastra para mover, rueda para zoom. Haz clic en las opciones del nodo para editar, añadir o borrar (solo Admin).</div>
         <div id="tree-container"></div>
     </main>
 
@@ -89,36 +89,26 @@
     </main>
 
     <!-- BOTONES FLOTANTES -->
-    <button id="edit-mode-fab" class="fab fab-edit hidden" title="Modo Edición / Gestión de Nodos">✏️</button>
+    <button id="settings-fab" class="fab fab-edit hidden" title="Ajustes y Respaldos">⚙️</button>
     <button id="dark-mode-toggle" class="fab fab-dark" title="Cambiar tema">☀️</button>
     <button id="download-png-fab" class="fab fab-download" title="Descargar organigrama en PNG">💾</button>
     <button id="install-btn" class="fab fab-install" title="Instalar aplicación">📥 Descargar App</button>
 
-    <!-- MODAL DE EDICIÓN DE NODOS -->
-    <div id="edit-modal" class="modal-overlay hidden">
+    <!-- MODAL DE AJUSTES GLOBALES -->
+    <div id="settings-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h2>Gestión del Organigrama</h2>
-            <p id="modal-node-title" class="modal-subtitle">Selecciona una acción para el nodo:</p>
-            
-            <div class="modal-form-group">
-                <label for="node-name-input">Nombre / Cargo del Nodo:</label>
-                <input type="text" id="node-name-input" class="custom-input" placeholder="Ej. Apoyo Técnico o Nombre de Responsable">
-            </div>
+            <h2>⚙️ Ajustes del Sistema</h2>
+            <p class="modal-subtitle">Gestión de datos y respaldos</p>
 
-            <div class="modal-buttons">
-                <button id="btn-add-child" class="action-btn btn-success">➕ Añadir Subnodo</button>
-                <button id="btn-edit-node" class="action-btn btn-warning">✏️ Renombrar</button>
-                <button id="btn-delete-node" class="action-btn btn-danger">🗑️ Eliminar Nodo</button>
+            <div class="modal-actions-global" style="margin-top: 20px;">
+                <button id="btn-export-json" class="action-btn btn-success" style="width:100%; margin-bottom: 10px;">📥 Exportar Respaldo (JSON)</button>
+                <button id="btn-import-json" class="action-btn btn-warning" style="width:100%;">📤 Importar Respaldo (JSON)</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
 
             <div class="modal-divider"></div>
-
-            <div class="modal-actions-global">
-                <button id="btn-export-json" class="action-btn">📥 Exportar JSON</button>
-                <button id="btn-import-json" class="action-btn">📤 Importar JSON</button>
-                <input type="file" id="import-file-input" accept=".json" style="display: none;">
-                <button id="btn-reset-org" class="action-btn btn-secondary">🔄 Restaurar Original</button>
-            </div>
+            
+            <button id="btn-reset-org" class="action-btn btn-danger" style="width: 100%;">🔄 Restaurar Organigrama Original</button>
 
             <button id="close-modal" class="close-modal-btn">&times;</button>
         </div>
