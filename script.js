@@ -1,4 +1,4 @@
-// REGISTRO SERVICE WORKER (CON DETECCIÓN DE ACTUALIZACIONES AUTOMÁTICAS)
+// REGISTRO SERVICE WORKER
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(registration => {
@@ -22,10 +22,9 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// ESTADO DE PERMISOS DE USUARIO
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN (Cloudflare KV + LocalStorage)
+// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN
 const DEFAULT_ORG_DATA = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
     children: [
@@ -99,8 +98,6 @@ const DEFAULT_ORG_DATA = {
 };
 
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
-
-// 👇 AQUÍ ESTÁ TU ENDPOINT REAL EN CLOUDFLARE
 const CLOUDFLARE_API_URL = "https://org-lad-api.adrian-camelot32.workers.dev/api/org"; 
 
 async function loadOrgDataFromCloud() {
@@ -120,7 +117,7 @@ async function loadOrgDataFromCloud() {
 }
 
 async function saveOrgData() {
-    if (!isAdmin) return; // Seguridad extra
+    if (!isAdmin) return;
     localStorage.setItem('org_lad_data', JSON.stringify(orgData));
     updateWorkflowSelects();
 
@@ -143,6 +140,7 @@ const duration = 750;
 const container = document.getElementById("tree-container");
 const nodeWidth = 340; 
 const nodeHeight = 100; 
+let selectedNodeTarget = null; // Variable para saber qué nodo editaremos
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -194,9 +192,18 @@ function update(source) {
 
     const node = g.selectAll("g.node").data(nodes, d => d.id || (d.id = ++i));
     
+    // CORRECCIÓN: Evento clic y clic derecho integrados
     const nodeEnter = node.enter().append("g").attr("class", "node")
         .attr("transform", d => orientation === "horizontal" ? `translate(${source.y0},${source.x0})` : `translate(${source.x0},${source.y0})`)
-        .on("click", clickNode);
+        .on("click", clickNode)
+        .on("contextmenu", function(event, d) {
+            event.preventDefault(); // Evita que salga el menú del navegador
+            if (!isAdmin) return;
+            selectedNodeTarget = d;
+            nodeNameInput.value = d.data.name;
+            modalNodeTitle.textContent = `Gestionando nodo: ${d.data.name}`;
+            editModal.classList.remove('hidden');
+        });
 
     nodeEnter.append("rect")
         .attr("width", nodeWidth).attr("height", nodeHeight)
@@ -244,6 +251,7 @@ function diagonal(s, d) {
 }
 
 function clickNode(event, d) {
+    selectedNodeTarget = d; // Guarda en memoria cuál fue el último nodo clickeado
     if (d.children) { d._children = d.children; d.children = null; } 
     else { d.children = d._children; d._children = null; }
     update(d);
@@ -257,7 +265,7 @@ const editFab = document.getElementById('edit-mode-fab');
 document.getElementById('btn-guest-login').addEventListener('click', () => {
     isAdmin = false;
     authScreen.classList.add('hidden');
-    if (editFab) editFab.classList.add('hidden'); // Ocultar botón de edición a invitados
+    if (editFab) editFab.classList.add('hidden'); 
     loadOrgDataFromCloud();
 });
 
@@ -266,26 +274,26 @@ document.getElementById('btn-admin-login').addEventListener('click', () => {
     if (pass === "psique33") {
         isAdmin = true;
         authScreen.classList.add('hidden');
-        if (editFab) editFab.classList.remove('hidden'); // Mostrar botón de edición
+        if (editFab) editFab.classList.remove('hidden'); 
         loadOrgDataFromCloud();
     } else {
         alert("Contraseña incorrecta. Intenta de nuevo.");
     }
 });
 
-// 4. LÓGICA DE EDICIÓN DIRECTA DE NODOS (MODAL - SOLO ADMIN)
-let selectedNodeTarget = null;
+// 4. LÓGICA DE EDICIÓN DIRECTA DE NODOS
 const editModal = document.getElementById('edit-modal');
 const closeModalBtn = document.getElementById('close-modal');
 const nodeNameInput = document.getElementById('node-name-input');
 const modalNodeTitle = document.getElementById('modal-node-title');
 
+// CORRECCIÓN: Botón FAB ahora edita el último nodo seleccionado
 if (editFab) {
     editFab.addEventListener('click', () => {
         if (!isAdmin) return;
-        selectedNodeTarget = root;
-        nodeNameInput.value = root.data.name;
-        modalNodeTitle.textContent = `Editando Nodo Principal:`;
+        if (!selectedNodeTarget) selectedNodeTarget = root; // Si no hay nada seleccionado, elige la raíz
+        nodeNameInput.value = selectedNodeTarget.data.name;
+        modalNodeTitle.textContent = `Gestionando nodo: ${selectedNodeTarget.data.name}`;
         editModal.classList.remove('hidden');
     });
 }
@@ -296,22 +304,6 @@ if (closeModalBtn) {
     });
 }
 
-// Doble clic para editar (Solo si es Admin)
-document.addEventListener('dblclick', (e) => {
-    if (!isAdmin) return;
-    const targetGroup = e.target.closest('.node');
-    if (targetGroup) {
-        const d3Node = d3.select(targetGroup).datum();
-        if (d3Node) {
-            selectedNodeTarget = d3Node;
-            nodeNameInput.value = d3Node.data.name;
-            modalNodeTitle.textContent = `Gestionando nodo: ${d3Node.data.name}`;
-            editModal.classList.remove('hidden');
-        }
-    }
-});
-
-// Botones de acciones del modal
 const btnAddChild = document.getElementById('btn-add-child');
 if (btnAddChild) {
     btnAddChild.addEventListener('click', () => {
@@ -322,7 +314,7 @@ if (btnAddChild) {
         selectedNodeTarget.data.children.push({ name: newName });
         saveOrgData();
         editModal.classList.add('hidden');
-        init();
+        init(); // Recargar árbol
     });
 }
 
@@ -429,7 +421,6 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// DESCARGAR PNG
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
