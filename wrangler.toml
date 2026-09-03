@@ -1,7 +1,9 @@
+
 name = "org-lad-api"
 main = "worker.js"
 compatibility_date = "2026-09-02"
 
 [[kv_namespaces]]
 binding = "ORG_KV"
-id = "TU_ID_DE_KV_AQUÍ" # Reemplaza con el ID de tu KV en Cloudflare
+id = "2ddd841baddc471c906f14a114050f4f"
+preview_id = "9422dc57c9544cb5a762faf43978bd5e"
