@@ -13,6 +13,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 </head>
 <body>
+    <!-- PANTALLA DE ACCESO INICIAL (GATEKEEPER) -->
+    <div id="auth-screen" class="auth-overlay">
+        <div class="auth-card">
+            <img src="logo.jpeg" alt="Logo UNRC" class="auth-logo" onerror="this.style.display='none'">
+            <h2>Organigrama LAD - Psicología</h2>
+            <p>Universidad Nacional Rosario Castellanos</p>
+            
+            <div class="auth-options">
+                <button id="btn-guest-login" class="action-btn btn-secondary">👤 Entrar como Invitado (Solo lectura)</button>
+                
+                <div class="auth-divider">O acceso administrativo</div>
+                
+                <div class="auth-form">
+                    <input type="password" id="admin-pass-input" class="custom-input" placeholder="Contraseña de administración">
+                    <button id="btn-admin-login" class="action-btn">🔓 Acceso LAD-Psicología (Editor)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="header-content">
             <img src="logo.jpeg" alt="Logo UNRC" class="title-logo pc-logo" onerror="this.style.display='none'">
@@ -35,7 +55,7 @@
     </header>
 
     <main id="org-tab" class="tab-content active">
-        <div class="hint-bar">Arrastra para mover, rueda para zoom, clic en nodos para expandir la estructura de Apoyos y Gestores.</div>
+        <div class="hint-bar">Arrastra para mover, rueda para zoom, doble clic en un nodo para editar (solo Admin).</div>
         <div id="tree-container"></div>
     </main>
 
@@ -69,9 +89,40 @@
     </main>
 
     <!-- BOTONES FLOTANTES -->
+    <button id="edit-mode-fab" class="fab fab-edit hidden" title="Modo Edición / Gestión de Nodos">✏️</button>
     <button id="dark-mode-toggle" class="fab fab-dark" title="Cambiar tema">☀️</button>
     <button id="download-png-fab" class="fab fab-download" title="Descargar organigrama en PNG">💾</button>
     <button id="install-btn" class="fab fab-install" title="Instalar aplicación">📥 Descargar App</button>
+
+    <!-- MODAL DE EDICIÓN DE NODOS -->
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Gestión del Organigrama</h2>
+            <p id="modal-node-title" class="modal-subtitle">Selecciona una acción para el nodo:</p>
+            
+            <div class="modal-form-group">
+                <label for="node-name-input">Nombre / Cargo del Nodo:</label>
+                <input type="text" id="node-name-input" class="custom-input" placeholder="Ej. Apoyo Técnico o Nombre de Responsable">
+            </div>
+
+            <div class="modal-buttons">
+                <button id="btn-add-child" class="action-btn btn-success">➕ Añadir Subnodo</button>
+                <button id="btn-edit-node" class="action-btn btn-warning">✏️ Renombrar</button>
+                <button id="btn-delete-node" class="action-btn btn-danger">🗑️ Eliminar Nodo</button>
+            </div>
+
+            <div class="modal-divider"></div>
+
+            <div class="modal-actions-global">
+                <button id="btn-export-json" class="action-btn">📥 Exportar JSON</button>
+                <button id="btn-import-json" class="action-btn">📤 Importar JSON</button>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                <button id="btn-reset-org" class="action-btn btn-secondary">🔄 Restaurar Original</button>
+            </div>
+
+            <button id="close-modal" class="close-modal-btn">&times;</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
