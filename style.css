@@ -137,26 +137,26 @@ body.dark-mode .big-text { color: var(--secondary-color); }
     .fab-edit { bottom: auto; top: 15px; right: 65px; width: 40px; height: 40px; font-size: 18px; }
 }
 
-/* MODAL DE EDICIÓN */
-.modal-overlay {
+/* MODAL Y ACCESOS */
+.modal-overlay, .auth-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-    display: flex; justify-content: center; align-items: center; z-index: 2000;
+    display: flex; justify-content: center; align-items: center; z-index: 3000;
     animation: fadeIn 0.3s ease;
 }
-.modal-overlay.hidden { display: none; }
+.modal-overlay { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 2000; }
+.auth-overlay { background: linear-gradient(135deg, var(--primary-color) 0%, #3a111b 100%); }
+.modal-overlay.hidden, .auth-overlay.hidden { display: none !important; }
 
-.modal-content {
+.modal-content, .auth-card {
     background: var(--white); color: var(--text-color);
-    padding: 30px; border-radius: 12px; width: 90%; max-width: 500px;
-    box-shadow: var(--shadow-soft); position: relative;
+    padding: 30px; border-radius: 12px; width: 90%; max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; text-align: center;
     border-top: 6px solid var(--primary-color);
 }
-.modal-content h2 { margin-top: 0; font-family: 'Merriweather', serif; color: var(--primary-color); font-size: 22px; }
-.modal-subtitle { font-size: 14px; color: var(--hint-text); margin-bottom: 20px; font-weight: 600; }
-
-.modal-form-group { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
-.modal-form-group label { font-size: 13px; font-weight: 600; color: var(--tertiary-color); }
+.auth-card { padding: 40px 30px; border-top: 6px solid var(--secondary-color); }
+.modal-content h2, .auth-card h2 { margin-top: 0; font-family: 'Merriweather', serif; color: var(--primary-color); font-size: 22px; }
+.auth-logo { height: 60px; width: auto; margin-bottom: 15px; object-fit: contain; }
+.modal-subtitle, .auth-card p { font-size: 12px; color: var(--hint-text); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 20px; }
 
 .custom-input {
     padding: 12px 15px; border: 2px solid var(--light-gray); border-radius: 8px;
@@ -164,9 +164,6 @@ body.dark-mode .big-text { color: var(--secondary-color); }
     background: var(--bg-color); width: 100%; transition: var(--transition);
 }
 .custom-input:focus { outline: none; border-color: var(--primary-color); }
-
-.modal-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-.modal-buttons .action-btn { flex: 1; min-width: 130px; padding: 10px 15px; font-size: 13px; border-radius: 8px; }
 
 .btn-success { background: var(--tertiary-color); }
 .btn-success:hover { background: #173b32; }
@@ -177,9 +174,7 @@ body.dark-mode .big-text { color: var(--secondary-color); }
 .btn-secondary { background: var(--light-gray); color: var(--text-color); }
 .btn-secondary:hover { background: #d0d0d0; }
 
-.modal-divider { height: 1px; background: var(--light-gray); margin: 20px 0; }
-.modal-actions-global { display: flex; gap: 10px; flex-wrap: wrap; }
-.modal-actions-global .action-btn { flex: 1; font-size: 12px; padding: 10px; border-radius: 8px; }
+.modal-divider, .auth-divider { height: 1px; background: var(--light-gray); margin: 20px 0; font-size: 11px; color: var(--hint-text); text-transform: uppercase; letter-spacing: 1px; }
 
 .close-modal-btn {
     position: absolute; top: 15px; right: 20px; background: transparent;
@@ -188,26 +183,21 @@ body.dark-mode .big-text { color: var(--secondary-color); }
 }
 .close-modal-btn:hover { color: var(--primary-color); transform: scale(1.1); }
 
-/* PANTALLA DE ACCESO INSTITUCIONAL (GATEKEEPER) */
-.auth-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #3a111b 100%);
-    display: flex; justify-content: center; align-items: center; z-index: 3000;
-    animation: fadeIn 0.4s ease;
-}
-.auth-overlay.hidden { display: none !important; }
-
-.auth-card {
-    background: var(--white); color: var(--text-color);
-    padding: 40px 30px; border-radius: 16px; width: 90%; max-width: 420px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
-    border-top: 6px solid var(--secondary-color);
-}
-.auth-logo { height: 60px; width: auto; margin-bottom: 15px; object-fit: contain; }
-.auth-card h2 { margin: 0 0 5px; font-family: 'Merriweather', serif; color: var(--primary-color); font-size: 20px; }
-.auth-card p { font-size: 12px; color: var(--hint-text); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
-
 .auth-options { display: flex; flex-direction: column; gap: 15px; }
-.auth-divider { font-size: 11px; color: var(--hint-text); margin: 5px 0; text-transform: uppercase; letter-spacing: 1px; }
 .auth-form { display: flex; flex-direction: column; gap: 10px; }
 .auth-card .action-btn { width: 100%; padding: 12px; border-radius: 8px; }
+
+/* ESTILOS DE LOS BOTONES IN-NODE D3 */
+.node-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+.node-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.15);
+}
