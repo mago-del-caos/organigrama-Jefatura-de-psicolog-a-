@@ -1,6 +1,5 @@
-const CACHE_NAME = 'organigrama-lad-v1.2.5'; // 👈 SUBE ESTE NÚMERO CADA VEZ QUE HAGAS UN CAMBIO EN TU CÓDIGO
+const CACHE_NAME = 'organigrama-lad-v1.2.6'; 
 
-// Archivos principales que se guardan para que funcione sin internet
 const urlsToCache = [
     './',
     './index.html',
@@ -10,16 +9,14 @@ const urlsToCache = [
     './logo.jpeg'
 ];
 
-// INSTALACIÓN: Guardar archivos base en caché
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(urlsToCache))
-            .then(() => self.skipWaiting()) // Forzar activación inmediata
+            .then(() => self.skipWaiting()) 
     );
 });
 
-// ACTIVACIÓN: Borrar cachés viejas automáticamente
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(cacheNames => {
@@ -27,23 +24,20 @@ self.addEventListener('activate', event => {
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME) {
                         console.log('Borrando caché antigua:', cacheName);
-                        return caches.delete(cacheName); // Elimina versiones anteriores
+                        return caches.delete(cacheName); 
                     }
                 })
             );
-        }).then(() => self.clients.claim()) // Toma el control inmediatamente
+        }).then(() => self.clients.claim()) 
     );
 });
 
-// FETCH (LA MAGIA): Red primero, Caché de respaldo
 self.addEventListener('fetch', event => {
-    // Ignorar peticiones que no sean GET (como POST a APIs)
     if (event.request.method !== 'GET') return;
 
     event.respondWith(
-        fetch(event.request) // 1. Intenta buscar la versión nueva en GitHub
+        fetch(event.request) 
             .then(response => {
-                // Si la respuesta es válida, guárdala en caché y devuélvela
                 if (response && response.status === 200 && response.type === 'basic') {
                     const responseToCache = response.clone();
                     caches.open(CACHE_NAME).then(cache => {
@@ -53,7 +47,6 @@ self.addEventListener('fetch', event => {
                 return response;
             })
             .catch(() => {
-                // 2. Si NO HAY INTERNET, busca en la caché
                 return caches.match(event.request);
             })
     );
