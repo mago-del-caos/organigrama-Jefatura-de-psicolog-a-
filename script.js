@@ -100,8 +100,8 @@ const DEFAULT_ORG_DATA = {
 
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
 
-// 👇 CAMBIA ESTO cuando despliegues tu Worker en Cloudflare
-const CLOUDFLARE_API_URL = "https://tu-worker.tu-subdominio.workers.dev/api/org"; 
+// 👇 AQUÍ ESTÁ TU ENDPOINT REAL EN CLOUDFLARE
+const CLOUDFLARE_API_URL = "https://org-lad-api.adrian-camelot32.workers.dev/api/org"; 
 
 async function loadOrgDataFromCloud() {
     try {
