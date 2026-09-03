@@ -22,6 +22,9 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// ESTADO DE PERMISOS DE USUARIO
+let isAdmin = false;
+
 // 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN (Cloudflare KV + LocalStorage)
 const DEFAULT_ORG_DATA = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
@@ -95,10 +98,9 @@ const DEFAULT_ORG_DATA = {
     ]
 };
 
-// Cargar datos desde localStorage inicialmente
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
 
-// URL de tu API en Cloudflare Worker (ajusta con tu subdominio o dominio personalizado cuando esté activo)
+// 👇 CAMBIA ESTO cuando despliegues tu Worker en Cloudflare
 const CLOUDFLARE_API_URL = "https://tu-worker.tu-subdominio.workers.dev/api/org"; 
 
 async function loadOrgDataFromCloud() {
@@ -108,20 +110,20 @@ async function loadOrgDataFromCloud() {
             const cloudData = await response.json();
             orgData = cloudData;
             localStorage.setItem('org_lad_data', JSON.stringify(cloudData));
-            init();
-            updateWorkflowSelects();
         }
     } catch (err) {
         console.log("Modo offline o sin conexión al Worker, usando datos locales.");
+    } finally {
+        init();
+        updateWorkflowSelects();
     }
 }
 
 async function saveOrgData() {
-    // Guardar localmente como respaldo inmediato
+    if (!isAdmin) return; // Seguridad extra
     localStorage.setItem('org_lad_data', JSON.stringify(orgData));
     updateWorkflowSelects();
 
-    // Sincronizar en segundo plano con Cloudflare KV
     try {
         await fetch(CLOUDFLARE_API_URL, {
             method: "POST",
@@ -248,27 +250,55 @@ function clickNode(event, d) {
 }
 
 
-// 3. LÓGICA DE EDICIÓN DIRECTA DE NODOS (MODAL)
+// 3. LÓGICA DE CONTROL DE ACCESO (GATEKEEPER)
+const authScreen = document.getElementById('auth-screen');
+const editFab = document.getElementById('edit-mode-fab');
+
+document.getElementById('btn-guest-login').addEventListener('click', () => {
+    isAdmin = false;
+    authScreen.classList.add('hidden');
+    if (editFab) editFab.classList.add('hidden'); // Ocultar botón de edición a invitados
+    loadOrgDataFromCloud();
+});
+
+document.getElementById('btn-admin-login').addEventListener('click', () => {
+    const pass = document.getElementById('admin-pass-input').value.trim();
+    if (pass === "psique33") {
+        isAdmin = true;
+        authScreen.classList.add('hidden');
+        if (editFab) editFab.classList.remove('hidden'); // Mostrar botón de edición
+        loadOrgDataFromCloud();
+    } else {
+        alert("Contraseña incorrecta. Intenta de nuevo.");
+    }
+});
+
+// 4. LÓGICA DE EDICIÓN DIRECTA DE NODOS (MODAL - SOLO ADMIN)
 let selectedNodeTarget = null;
 const editModal = document.getElementById('edit-modal');
-const editFab = document.getElementById('edit-mode-fab');
 const closeModalBtn = document.getElementById('close-modal');
 const nodeNameInput = document.getElementById('node-name-input');
 const modalNodeTitle = document.getElementById('modal-node-title');
 
-editFab.addEventListener('click', () => {
-    selectedNodeTarget = root;
-    nodeNameInput.value = root.data.name;
-    modalNodeTitle.textContent = `Editando Nodo Principal:`;
-    editModal.classList.remove('hidden');
-});
+if (editFab) {
+    editFab.addEventListener('click', () => {
+        if (!isAdmin) return;
+        selectedNodeTarget = root;
+        nodeNameInput.value = root.data.name;
+        modalNodeTitle.textContent = `Editando Nodo Principal:`;
+        editModal.classList.remove('hidden');
+    });
+}
 
-closeModalBtn.addEventListener('click', () => {
-    editModal.classList.add('hidden');
-});
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+        editModal.classList.add('hidden');
+    });
+}
 
-// Doble clic en cualquier nodo abre el gestor de edición
+// Doble clic para editar (Solo si es Admin)
 document.addEventListener('dblclick', (e) => {
+    if (!isAdmin) return;
     const targetGroup = e.target.closest('.node');
     if (targetGroup) {
         const d3Node = d3.select(targetGroup).datum();
@@ -281,109 +311,101 @@ document.addEventListener('dblclick', (e) => {
     }
 });
 
-// Añadir subnodo
-document.getElementById('btn-add-child').addEventListener('click', () => {
-    if (!selectedNodeTarget) return;
-    const newName = nodeNameInput.value.trim();
-    if (!newName) {
-        alert("Escribe un nombre válido para el nuevo nodo.");
-        return;
-    }
+// Botones de acciones del modal
+const btnAddChild = document.getElementById('btn-add-child');
+if (btnAddChild) {
+    btnAddChild.addEventListener('click', () => {
+        if (!selectedNodeTarget) return;
+        const newName = nodeNameInput.value.trim();
+        if (!newName) { alert("Escribe un nombre válido."); return; }
+        if (!selectedNodeTarget.data.children) selectedNodeTarget.data.children = [];
+        selectedNodeTarget.data.children.push({ name: newName });
+        saveOrgData();
+        editModal.classList.add('hidden');
+        init();
+    });
+}
 
-    if (!selectedNodeTarget.data.children) {
-        selectedNodeTarget.data.children = [];
-    }
-    selectedNodeTarget.data.children.push({ name: newName });
-    
-    saveOrgData();
-    editModal.classList.add('hidden');
-    init();
-});
+const btnEditNode = document.getElementById('btn-edit-node');
+if (btnEditNode) {
+    btnEditNode.addEventListener('click', () => {
+        if (!selectedNodeTarget) return;
+        const newName = nodeNameInput.value.trim();
+        if (!newName) { alert("El nombre no puede estar vacío."); return; }
+        selectedNodeTarget.data.name = newName;
+        saveOrgData();
+        editModal.classList.add('hidden');
+        init();
+    });
+}
 
-// Renombrar nodo
-document.getElementById('btn-edit-node').addEventListener('click', () => {
-    if (!selectedNodeTarget) return;
-    const newName = nodeNameInput.value.trim();
-    if (!newName) {
-        alert("El nombre no puede estar vacío.");
-        return;
-    }
+const btnDeleteNode = document.getElementById('btn-delete-node');
+if (btnDeleteNode) {
+    btnDeleteNode.addEventListener('click', () => {
+        if (!selectedNodeTarget) return;
+        if (selectedNodeTarget === root) { alert("No puedes eliminar el nodo raíz principal."); return; }
+        if (!confirm(`¿Estás seguro de eliminar el nodo "${selectedNodeTarget.data.name}"?`)) return;
 
-    selectedNodeTarget.data.name = newName;
-    saveOrgData();
-    editModal.classList.add('hidden');
-    init();
-});
+        const parent = selectedNodeTarget.parent;
+        if (parent && parent.data.children) {
+            parent.data.children = parent.data.children.filter(child => child !== selectedNodeTarget.data);
+            if (parent.data.children.length === 0) delete parent.data.children;
+        }
+        saveOrgData();
+        editModal.classList.add('hidden');
+        init();
+    });
+}
 
-// Eliminar nodo
-document.getElementById('btn-delete-node').addEventListener('click', () => {
-    if (!selectedNodeTarget) return;
-    if (selectedNodeTarget === root) {
-        alert("No puedes eliminar el nodo raíz principal.");
-        return;
-    }
-    if (!confirm(`¿Estás seguro de eliminar el nodo "${selectedNodeTarget.data.name}" y sus subniveles?`)) return;
+const btnExportJson = document.getElementById('btn-export-json');
+if (btnExportJson) {
+    btnExportJson.addEventListener('click', () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orgData, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", "orgData.json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    });
+}
 
-    const parent = selectedNodeTarget.parent;
-    if (parent && parent.data.children) {
-        parent.data.children = parent.data.children.filter(child => child !== selectedNodeTarget.data);
-        if (parent.data.children.length === 0) delete parent.data.children;
-    }
-
-    saveOrgData();
-    editModal.classList.add('hidden');
-    init();
-});
-
-// Exportar JSON para actualizar repositorio
-document.getElementById('btn-export-json').addEventListener('click', () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orgData, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "orgData.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-});
-
-// Importar JSON
 const importFileInput = document.getElementById('import-file-input');
-document.getElementById('btn-import-json').addEventListener('click', () => {
-    importFileInput.click();
-});
+const btnImportJson = document.getElementById('btn-import-json');
+if (btnImportJson && importFileInput) {
+    btnImportJson.addEventListener('click', () => importFileInput.click());
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                orgData = JSON.parse(evt.target.result);
+                saveOrgData();
+                init();
+                editModal.classList.add('hidden');
+                alert("Organigrama importado con éxito.");
+            } catch (err) { alert("Archivo JSON no válido."); }
+        };
+        reader.readAsText(file);
+    });
+}
 
-importFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-        try {
-            const parsed = JSON.parse(evt.target.result);
-            orgData = parsed;
+const btnResetOrg = document.getElementById('btn-reset-org');
+if (btnResetOrg) {
+    btnResetOrg.addEventListener('click', () => {
+        if (confirm("¿Restaurar el organigrama original?")) {
+            localStorage.removeItem('org_lad_data');
+            orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
             saveOrgData();
             init();
             editModal.classList.add('hidden');
-            alert("Organigrama importado con éxito.");
-        } catch (err) {
-            alert("El archivo JSON no es válido.");
         }
-    };
-    reader.readAsText(file);
-});
-
-// Restaurar original institucional
-document.getElementById('btn-reset-org').addEventListener('click', () => {
-    if (confirm("¿Restaurar el organigrama a su estado original? Se perderán los cambios locales.")) {
-        localStorage.removeItem('org_lad_data');
-        orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
-        saveOrgData();
-        init();
-        editModal.classList.add('hidden');
-    }
-});
+    });
+}
 
 
-// 4. LÓGICA DE INTERFAZ & TABS
+// 5. LÓGICA DE INTERFAZ & TABS
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -396,38 +418,39 @@ function showTab(tabId, evt) {
     setActiveTab(evt);
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
-    downloadFab.classList.add('hidden'); 
+    if (downloadFab) downloadFab.classList.add('hidden'); 
 }
 function showOrgTab(orient, evt) {
     setActiveTab(evt);
     orientation = orient;
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById('org-tab').classList.add('active');
-    downloadFab.classList.remove('hidden'); 
+    if (downloadFab) downloadFab.classList.remove('hidden'); 
     setTimeout(() => init(), 100);
 }
 
 // DESCARGAR PNG
-downloadFab.addEventListener('click', (e) => {
-    e.preventDefault();
-    const node = document.getElementById('tree-container');
-    domtoimage.toPng(node, { bgcolor: getComputedStyle(document.body).getPropertyValue('--bg-color') })
-        .then(function (dataUrl) {
-            const link = document.createElement('a');
-            link.download = 'Organigrama_LAD_UNRC.png';
-            link.href = dataUrl;
-            link.click();
-        })
-        .catch(function (error) {
-            console.error('Error al descargar:', error);
-        });
-});
+if (downloadFab) {
+    downloadFab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const node = document.getElementById('tree-container');
+        domtoimage.toPng(node, { bgcolor: getComputedStyle(document.body).getPropertyValue('--bg-color') })
+            .then(function (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'Organigrama_LAD_UNRC.png';
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch(function (error) { console.error('Error al descargar:', error); });
+    });
+}
 
-// 5. LÓGICA DE FLUJO DE TRABAJO
+// 6. LÓGICA DE FLUJO DE TRABAJO
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
 function updateWorkflowSelects() {
+    if (!selectOrigen || !selectDestino) return;
     selectOrigen.innerHTML = "";
     selectDestino.innerHTML = "";
     const allNodesList = d3.hierarchy(orgData).descendants().map(d => d.data.name);
@@ -442,87 +465,81 @@ function updateWorkflowSelects() {
         selectDestino.appendChild(opt2);
     });
 }
-updateWorkflowSelects();
 
-document.getElementById('calc-ruta').addEventListener('click', () => {
-    const valOrigen = selectOrigen.value;
-    const valDestino = selectDestino.value;
-    
-    if(valOrigen === valDestino) {
-        alert("El origen y el destino deben ser áreas diferentes.");
-        return;
-    }
-
-    const rootCalc = d3.hierarchy(orgData);
-    const nodeOrigen = rootCalc.find(d => d.data.name === valOrigen);
-    const nodeDestino = rootCalc.find(d => d.data.name === valDestino);
-    
-    if (!nodeOrigen || !nodeDestino) {
-        alert("No se encontró una de las áreas seleccionadas.");
-        return;
-    }
-
-    const path = nodeOrigen.path(nodeDestino);
-    const intermedios = path.length - 2;
-    
-    let flowHTML = "";
-    path.forEach((nodo, index) => {
-        flowHTML += `<span class="step">${nodo.data.name}</span>`;
-        if(index < path.length - 1) {
-            const currDepth = nodo.depth;
-            const nextDepth = path[index + 1].depth;
-            let arrow = "➔"; 
-            if (nextDepth < currDepth) {
-                arrow = "⬆️"; 
-            } else if (nextDepth > currDepth) {
-                arrow = "⬇️"; 
-            }
-            flowHTML += `<span class="arrow">${arrow}</span>`;
+const calcRutaBtn = document.getElementById('calc-ruta');
+if (calcRutaBtn) {
+    calcRutaBtn.addEventListener('click', () => {
+        const valOrigen = selectOrigen.value;
+        const valDestino = selectDestino.value;
+        
+        if(valOrigen === valDestino) {
+            alert("El origen y el destino deben ser áreas diferentes.");
+            return;
         }
+
+        const rootCalc = d3.hierarchy(orgData);
+        const nodeOrigen = rootCalc.find(d => d.data.name === valOrigen);
+        const nodeDestino = rootCalc.find(d => d.data.name === valDestino);
+        
+        if (!nodeOrigen || !nodeDestino) return;
+
+        const path = nodeOrigen.path(nodeDestino);
+        const intermedios = path.length - 2;
+        
+        let flowHTML = "";
+        path.forEach((nodo, index) => {
+            flowHTML += `<span class="step">${nodo.data.name}</span>`;
+            if(index < path.length - 1) {
+                const currDepth = nodo.depth;
+                const nextDepth = path[index + 1].depth;
+                let arrow = "➔"; 
+                if (nextDepth < currDepth) arrow = "⬆️"; 
+                else if (nextDepth > currDepth) arrow = "⬇️"; 
+                flowHTML += `<span class="arrow">${arrow}</span>`;
+            }
+        });
+
+        let textoResultado = intermedios === 0 ? "Canalización y comunicación directa (sin áreas intermedias)." : `La canalización requiere pasar por ${intermedios} instancia(s) intermedias.`;
+        document.getElementById('personas-entre').innerText = textoResultado;
+        document.getElementById('ruta-flujo').innerHTML = flowHTML;
+        document.getElementById('resultado-flujo').classList.remove('hidden');
     });
+}
 
-    let textoResultado = `La canalización requiere pasar por ${intermedios} instancia(s) intermedias.`;
-    if (intermedios === 0) {
-        textoResultado = "Canalización y comunicación directa (sin áreas intermedias).";
-    }
-
-    document.getElementById('personas-entre').innerText = textoResultado;
-    document.getElementById('ruta-flujo').innerHTML = flowHTML;
-    document.getElementById('resultado-flujo').classList.remove('hidden');
-});
-
-// 6. MODO OSCURO
+// 7. MODO OSCURO
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
-    darkModeToggle.textContent = '🌙'; 
+    if (darkModeToggle) darkModeToggle.textContent = '🌙'; 
 } else {
-    darkModeToggle.textContent = '☀️'; 
+    if (darkModeToggle) darkModeToggle.textContent = '☀️'; 
 }
-darkModeToggle.addEventListener('click', (e) => {
-    document.body.classList.toggle('dark-mode');
-    if (document.body.classList.contains('dark-mode')) {
-        e.currentTarget.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
-    } else {
-        e.currentTarget.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-    }
-});
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', (e) => {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+            e.currentTarget.textContent = '🌙';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            e.currentTarget.textContent = '☀️';
+            localStorage.setItem('theme', 'light');
+        }
+    });
+}
 
-// 7. PWA LÓGICA 
+// 8. PWA LÓGICA 
 let deferredPrompt;
 let installAttempts = 0; 
 const installBtn = document.getElementById('install-btn');
 
 window.addEventListener('load', () => {
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        installBtn.classList.add('hidden');
+        if (installBtn) installBtn.classList.add('hidden');
     }
 });
 
 window.addEventListener('appinstalled', () => {
-    installBtn.classList.add('hidden');
+    if (installBtn) installBtn.classList.add('hidden');
 });
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -530,36 +547,23 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e; 
 });
 
-installBtn.addEventListener('click', async () => {
-    let installed = false;
-    
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        
-        if (outcome === 'accepted') {
-            installed = true;
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        let installed = false;
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (outcome === 'accepted') { installed = true; installBtn.classList.add('hidden'); }
+            else { installAttempts++; }
+        } else { installAttempts++; }
+
+        if (!installed && installAttempts >= 5) {
+            alert("Para instalar la app en este dispositivo:\n\nEn PC: Haz clic en el ícono de 'Instalar' en la barra de direcciones.\n\nEn Móvil: Selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
             installAttempts = 0; 
-            installBtn.classList.add('hidden');
-        } else {
-            installAttempts++; 
         }
-    } else {
-        installAttempts++; 
-    }
-
-    if (!installed && installAttempts >= 5) {
-        alert("Para instalar la app en este dispositivo:\n\nEn PC (Chrome/Edge): Haz clic en el ícono de 'Instalar' en la barra de direcciones.\n\nEn Móvil: Abre el menú del navegador y selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
-        installAttempts = 0; 
-    }
-});
-
-// Inicializar al cargar la página
-window.addEventListener('load', () => { 
-    loadOrgDataFromCloud();
-    init(); 
-});
+    });
+}
 
 let resizeTimer;
 window.addEventListener('resize', () => {
