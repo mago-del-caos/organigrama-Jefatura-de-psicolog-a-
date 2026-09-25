@@ -17,74 +17,147 @@ if ('serviceWorker' in navigator) {
 
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN
+// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN (LICENCIATURA EN PSICOLOGÍA A DISTANCIA)
 const DEFAULT_ORG_DATA = {
     name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
     children: [
         {
             name: "Apoyo 1. Planeación y seguimiento académico-curricular",
             children: [
-                { name: "Desarrollo, revisión y actualización de UCA" },
-                { name: "Planear actividades y coloquios académicos" },
-                { name: "Proponer la oferta de UCA y grupos" }
+                {
+                    name: "Desarrollo, revisión y actualización de UCA",
+                    children: [
+                        { name: "Verificar congruencia con Modelo Educativo y normativa" },
+                        { name: "Análisis de perfiles y integración de equipos especialistas (Educativa, Clínica, Social y Laboral)" },
+                        { name: "Desarrollo de contenidos, problemas prototípicos, incidentes críticos, tareas y foros" },
+                        { name: "Reactivos para extraordinarios, exámenes finales y recuperación" }
+                    ]
+                },
+                {
+                    name: "Planear actividades y coloquios académicos",
+                    children: [
+                        { name: "Coloquios, encuentros académicos y talleres curriculares/extracurriculares" },
+                        { name: "Espacios de presentación, intercambio y reflexión de proyectos de investigación" }
+                    ]
+                },
+                {
+                    name: "Proponer la oferta de UCA y grupos",
+                    children: [
+                        { name: "Revisión y propuesta de oferta de UCA por semestre" },
+                        { name: "Elaboración de cronogramas por módulos y unidades" }
+                    ]
+                },
+                {
+                    name: "Apoyo 1.1 Análisis de datos",
+                    children: [
+                        { name: "Informes trimestrales y anuales requeridos por la Universidad" },
+                        { name: "Análisis estadístico de resultados académicos (tendencias y áreas de atención)" },
+                        { name: "Reportes para toma de decisiones y cursos de recuperación intersemestral" },
+                        { name: "Metas cuantitativas y alineación (Plan Nac. Desarrollo, P.S. Ciencia y P.I. Rosario Castellanos)" }
+                    ]
+                }
             ]
         },
         {
             name: "Apoyo 2. Gestión y acompañamiento docente",
             children: [
-                { name: "Proyección, selección y asignación docente" },
-                { name: "Inducción y capacitación de nuevo ingreso" },
-                { name: "Promover estrategias 3R y uso de guías institucionales" },
-                { name: "Canalizar incidencias del desempeño docente" }
+                {
+                    name: "Proyección, selección y asignación docente",
+                    children: [
+                        { name: "Proyección por ciclo escolar según oferta académica y grupos" },
+                        { name: "Identificación, valoración y selección de perfiles profesiográficos en modalidad a distancia" },
+                        { name: "Asignación docente semestral de UCA y grupos" }
+                    ]
+                },
+                {
+                    name: "Inducción y capacitación de nuevo ingreso",
+                    children: [
+                        { name: "Inducción sobre operación académica, características de UCA y trabajo en el AVA" },
+                        { name: "Coordinación de canales de comunicación y seguimiento institucional" }
+                    ]
+                },
+                {
+                    name: "Promover estrategias 3R y uso de guías institucionales",
+                    children: [
+                        { name: "Necesidades de fortalecimiento de la práctica docente" },
+                        { name: "Uso de la guía institucional para retroalimentación académica y sesiones virtuales" },
+                        { name: "Revisión de perfiles para prácticas profesionales y cursos de recuperación" }
+                    ]
+                },
+                {
+                    name: "Canalizar incidencias del desempeño docente",
+                    children: [
+                        { name: "Análisis, seguimiento y canalización de casos con incidencias en funciones docentes" }
+                    ]
+                }
             ]
         },
         {
             name: "Apoyo 3. Trayectoria académica, permanencia y atención",
             children: [
-                { name: "Atención presencial (Sede GAM) y estrategias de permanencia" },
-                { name: "Seguimiento de estrategias de retención y regularización" },
-                { name: "Estudiantes en riesgo y vulneración de derechos" }
+                {
+                    name: "Atención presencial (Sede GAM) y estrategias de permanencia",
+                    children: [
+                        { name: "Atención presencial a estudiantes para resolución de dudas sobre UCA" },
+                        { name: "Canalización sobre procesos de titulación y alternativas de acreditación" },
+                        { name: "Propuesta de estrategias de permanencia y seguimiento a trayectoria académica" }
+                    ]
+                },
+                {
+                    name: "Seguimiento de estrategias de retención y regularización",
+                    children: [
+                        { name: "Seguimiento a estudiantes en riesgo a partir de información del SAME" },
+                        { name: "Promoción de estrategias 3R y elaboración de materiales de apoyo docente" },
+                        { name: "Creación y seguimiento de canal exclusivo para estudiantes de primer semestre" }
+                    ]
+                },
+                {
+                    name: "Estudiantes en riesgo y formación especializada",
+                    children: [
+                        { name: "Acompañamiento en creación de cursos de formación docente y extracurriculares" },
+                        { name: "Seguimiento a UCA de estancias laborales y seminarios de titulación (Planes 2020 y 2023)" }
+                    ]
+                }
             ]
         },
         {
             name: "Apoyo 4. Prácticas profesionales, egreso y titulación",
             children: [
-                { name: "Canalización en procesos de titulación" },
-                { name: "Seguimiento a UCA de prácticas (Plan 2020 y 2023)" },
-                { name: "Acompañamiento a egresados y grupos de vinculación" }
+                { name: "Canalización en procesos de titulación a las áreas correspondientes" },
+                { name: "Aplicación y seguimiento de formularios para estudiantes de 8° semestre" },
+                { name: "Seguimiento a estrategias de egreso, servicio social, idiomas y grupos de WhatsApp" }
             ]
         },
         {
-            name: "Apoyo 5. Seguimiento, evaluación y documentación institucional",
+            name: "Apoyo 5. Atención y seguimiento de incidencias",
             children: [
-                { name: "Integrar indicadores (eficiencia terminal y titulación)" },
-                { name: "Informes trimestrales y anuales universitarios" },
-                { name: "Elaborar notas y documentación institucional" }
+                { name: "Revisión y gestión continua de correos electrónicos de la Licenciatura" },
+                { name: "Identificación de solicitudes, determinación de rutas de atención y respuesta directa" },
+                { name: "Organización y sistematización del registro de atención brindada" },
+                { name: "Seguimiento a incidencias de estudiantes reportadas por Tutoría (LPSI-LAD)" }
             ]
         },
         {
-            name: "Apoyo 6. Atención y seguimiento de incidencias",
+            name: "Apoyo 6. Acompañamiento, comunicación y seguimiento",
             children: [
-                { name: "Gestión continua de correos de la Licenciatura" },
-                { name: "Identificar rutas de canalización o atención directa" },
-                { name: "Seguimiento a incidencias reportadas por Tutoría" }
+                { name: "Construcción de indicadores y aplicación de formularios de seguimiento a grupos" },
+                { name: "Análisis y triangulación de datos para identificar patrones de comportamiento" },
+                { name: "Elaboración de reportes de monitoreo para medidas emergentes o remediales" },
+                { name: "Implementación de campañas de alfabetización en nuevas tecnologías en psicología" }
             ]
         },
         {
-            name: "Apoyo 7. Acompañamiento, comunicación y seguimiento",
+            name: "Gestores Académicos / SAME (Supervisor de Acompañamiento)",
             children: [
-                { name: "Canal de avisos para estudiantes de 1er semestre" },
-                { name: "Formularios de seguimiento a necesidades emergentes" },
-                { name: "Diagnóstico de modalidades de titulación" }
-            ]
-        },
-        {
-            name: "Gestores Académicos",
-            children: [
-                { name: "Seguimiento al ingreso y trabajo docente en AVA" },
-                { name: "Validación de foros, tareas auténticas y evaluaciones" },
-                { name: "Reporte de incidencias técnicas y de desempeño" },
-                { name: "Revisión de entrega de actas y descargables" }
+                { name: "Seguimiento docente: ingreso a plataforma, plan de trabajo, foros y tareas auténticas" },
+                { name: "Integración de concentrado actualizado (nombre, correo, teléfono, UCA y grupos)" },
+                { name: "Brindar información inicial del curso, canales de comunicación y acompañamiento" },
+                { name: "Revisar disponibilidad de recursos, foros sin restricciones y envío de fechas clave por módulo" },
+                { name: "Monitoreo semanal de acceso docente e incidencias técnicas y operativas" },
+                { name: "Supervisión de recuperación, retención y regularización de alumnos en riesgo (reportado al área 3R)" },
+                { name: "Verificación de evaluaciones en tiempo y forma, retroalimentación y entrega de formatos por unidad" },
+                { name: "Descarga de calificadores al cierre del bloque, gráficas de asistencia y corroboración de calificaciones" },
+                { name: "Dar seguimiento al llenado, entrega, validación de actas y revisión de documentación docente" }
             ]
         }
     ]
@@ -264,7 +337,7 @@ function clickNode(event, d) {
     update(d);
 }
 
-// 3. FUNCIONES DIRECTAS DE EDICIÓN (Prompts rápidos)
+// 3. FUNCIONES DIRECTAS DE EDICIÓN
 function promptEditNode(d) {
     const newName = prompt("Editar nombre del cargo o área:", d.data.name);
     if (newName !== null && newName.trim() !== "") {
@@ -279,7 +352,6 @@ function promptAddChild(d) {
     if (newName !== null && newName.trim() !== "") {
         if (!d.data.children) d.data.children = [];
         d.data.children.push({ name: newName.trim() });
-        // Expande automáticamente el nodo para ver al nuevo hijo
         if (d._children) { d.children = d._children; d._children = null; }
         saveOrgData();
         init(); 
@@ -302,7 +374,6 @@ function promptDeleteNode(d) {
     }
 }
 
-
 // 4. LÓGICA DE CONTROL DE ACCESO (GATEKEEPER)
 const authScreen = document.getElementById('auth-screen');
 const settingsFab = document.getElementById('settings-fab');
@@ -316,18 +387,17 @@ document.getElementById('btn-guest-login').addEventListener('click', () => {
 
 document.getElementById('btn-admin-login').addEventListener('click', () => {
     const pass = document.getElementById('admin-pass-input').value.trim();
-    if (pass === "psique33") {
+    if (pass === "psique33" || pass === "lulut" || pass === "L0b0l0b0") {
         isAdmin = true;
         authScreen.classList.add('hidden');
         if (settingsFab) settingsFab.classList.remove('hidden'); 
-        loadOrgDataFromCloud(); // Al cargar, "init" mostrará los botones de editar en los nodos
+        loadOrgDataFromCloud();
     } else {
         alert("Contraseña incorrecta. Intenta de nuevo.");
     }
 });
 
-
-// 5. MODAL DE AJUSTES (Exportar/Importar/Reset)
+// 5. MODAL DE AJUSTES
 const settingsModal = document.getElementById('settings-modal');
 const closeModalBtn = document.getElementById('close-modal');
 
@@ -389,7 +459,6 @@ if (btnResetOrg) {
         }
     });
 }
-
 
 // 6. LÓGICA DE INTERFAZ, TABS Y FLUJO
 const downloadFab = document.getElementById('download-png-fab');
