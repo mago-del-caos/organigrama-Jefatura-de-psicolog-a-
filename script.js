@@ -17,7 +17,7 @@ if ('serviceWorker' in navigator) {
 
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA (ESTRUCTURA DETALLADA Y PULIDA)
+// 1. DATOS DEL ORGANIGRAMA
 const DEFAULT_ORG_DATA = {
   name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
   children: [
@@ -187,7 +187,7 @@ let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// TAMAÑOS: Más compactos (300x120), mantienen scroll interno
+// TAMAÑOS
 const nodeWidth = 300; 
 const nodeHeight = 120; 
 
@@ -212,7 +212,6 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
-    // Espaciado ajustado para no generar mapas gigantes
     treeLayout = orientation === "horizontal" 
         ? d3.tree().nodeSize([nodeHeight + 15, nodeWidth + 50]) 
         : d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 50]);
@@ -451,7 +450,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ Y DESCARGA PARA PLÓTER
+// 6. LÓGICA DE INTERFAZ, TABS Y FLUJO
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -475,7 +474,7 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// LOGICA NUEVA DE EXPORTACIÓN A PDF VECTORIAL (PARA PLOTEO)
+// NUEVA LÓGICA DE EXPORTACIÓN A PDF PARA PLÓTER
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
@@ -521,7 +520,6 @@ if (downloadFab) {
     });
 }
 
-// LÓGICA DE RUTAS DE FLUJO
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
