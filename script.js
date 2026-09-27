@@ -211,6 +211,7 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
+    // Configuración general para la navegación web
     treeLayout = orientation === "horizontal" 
         ? d3.tree().nodeSize([nodeHeight + 25, nodeWidth + 90]) 
         : d3.tree().nodeSize([nodeWidth + 25, nodeHeight + 110]); 
@@ -397,7 +398,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ
+// 6. LÓGICA DE INTERFAZ Y PESTAÑA DE PLOTEO
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -418,11 +419,19 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// 🚀 SOLUCIÓN DEFINITIVA: FORZAR UNA SOLA PÁGINA DE PDF
+// 🚀 SOLUCIÓN DEFINITIVA: FORZAR VISTA DE PIRÁMIDE (TOP-DOWN)
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("Generando Organigrama en una SOLA PÁGINA sin cortes...\n\nAl abrirse la ventana de imprimir asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Gráficos de fondo: 'Activados'\n3. Márgenes: 'Ninguno'\n\nEl archivo resultante será un PDF gigante e ininterrumpido.");
+        alert("Generando Organigrama en formato A0...\n\nPara aprovechar todo el ancho y alto del póster, el mapa se reorganizará automáticamente en forma de PIRÁMIDE (de arriba hacia abajo).\n\nEn la ventana de imprimir, selecciona:\n1. Destino: 'Guardar como PDF'\n2. Diseño: 'Horizontal'\n3. Gráficos de fondo: 'Activados'\n4. Márgenes: 'Ninguno'");
+
+        // 1. Guardamos la orientación actual del usuario
+        const previousOrientation = orientation;
+
+        // 2. FORZAMOS la orientación Vertical (de arriba hacia abajo) para el plóter
+        orientation = "vertical";
+        // 3. Aplicamos una separación matemática ideal para aprovechar un póster A0
+        treeLayout = d3.tree().nodeSize([nodeWidth + 25, nodeHeight + 80]);
 
         function expandAll(d) {
             if (d._children) { d.children = d._children; d._children = null; }
@@ -435,10 +444,7 @@ if (downloadFab) {
             const svgEl = document.querySelector('#tree-container svg');
             const gEl = svgEl.querySelector('g');
             
-            // Medir el área exacta
             const bbox = gEl.getBBox();
-            
-            // Agregar 100px de aire alrededor
             const finalWidth = Math.ceil(bbox.width + 100);
             const finalHeight = Math.ceil(bbox.height + 100);
             
@@ -451,14 +457,13 @@ if (downloadFab) {
             clone.querySelector('g').removeAttribute('transform');
             clone.querySelectorAll('.node-actions').forEach(el => el.style.display = 'none');
 
-            // Abrir pestaña limpia
             const printWin = window.open('', '_blank');
             printWin.document.write(`
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Organigrama_Ploteo_Unico</title>
+                    <title>Organigrama_Ploteo_Piramide</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
                         body, html { 
@@ -472,7 +477,6 @@ if (downloadFab) {
                         }
                         svg { width: 100%; height: 100%; display: block; }
                         
-                        /* MAGIA: Fuerza al PDF a ser de 1 sola página del tamaño exacto del mapa */
                         @media print {
                             @page { size: ${finalWidth}px ${finalHeight}px; margin: 0; }
                             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -489,6 +493,8 @@ if (downloadFab) {
             `);
             printWin.document.close();
 
+            // 4. Regresamos el organigrama a su estado original en la web
+            orientation = previousOrientation;
             init(); 
         }, 850); 
     });
