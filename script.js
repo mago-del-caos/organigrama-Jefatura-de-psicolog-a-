@@ -180,14 +180,14 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (TAMAÑOS COMPACTOS Y OPTIMIZADOS)
+// 2. CONFIGURACIÓN D3.js (ESPACIADO OPTIMIZADO PARA A0)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// TAMAÑOS
+// TAMAÑO DE CAJAS
 const nodeWidth = 300; 
 const nodeHeight = 120; 
 
@@ -212,9 +212,11 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
+    // 🌟 AQUÍ ESTÁ LA MAGIA: Separación ENORME para aprovechar el póster A0
+    // [Espacio_Vertical, Espacio_Horizontal]
     treeLayout = orientation === "horizontal" 
-        ? d3.tree().nodeSize([nodeHeight + 15, nodeWidth + 50]) 
-        : d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 50]);
+        ? d3.tree().nodeSize([nodeHeight + 80, nodeWidth + 250]) 
+        : d3.tree().nodeSize([nodeWidth + 80, nodeHeight + 250]);
 
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
@@ -228,7 +230,8 @@ function init() {
     
     let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
     let initialY = orientation === "horizontal" ? height/2 : height/4;
-    svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.85));
+    // Reduje la escala inicial a 0.7 para que se siga viendo bien en monitores normales
+    svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.7));
 }
 
 function collapseDeep(d) {
@@ -404,7 +407,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ Y NUEVO MÉTODO PARA PLÓTER
+// 6. LÓGICA DE INTERFAZ Y PESTAÑA DE PLOTEO
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -429,7 +432,7 @@ function showOrgTab(orient, evt) {
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("Generando Organigrama para Plóter...\n\nSe abrirá una NUEVA PESTAÑA con el mapa completo perfectamente encuadrado.\n\nCuando se abra la ventana de imprimir, asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Diseño: 'Horizontal'\n3. Gráficos de fondo: 'Activados'\n4. Márgenes: 'Ninguno'");
+        alert("Generando Organigrama para Plóter A0...\n\nSe abrirá una NUEVA PESTAÑA con el mapa completo con mucha mayor separación entre áreas.\n\nEn la ventana de imprimir, selecciona:\n1. Destino: 'Guardar como PDF'\n2. Diseño: 'Horizontal'\n3. Gráficos de fondo: 'Activados'\n4. Márgenes: 'Ninguno'");
 
         // 1. Expandir TODO el organigrama automáticamente
         function expandAll(d) {
@@ -468,7 +471,7 @@ if (downloadFab) {
                 <html lang="es">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Organigrama_Ploteo_Gigante</title>
+                    <title>Organigrama_Ploteo_A0</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
                         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: white; font-family: 'Noto Sans', sans-serif; overflow: hidden; }
