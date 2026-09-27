@@ -180,13 +180,14 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js
+// 2. CONFIGURACIÓN D3.js (TAMAÑOS COMPACTOS Y OPTIMIZADOS)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
+// TAMAÑOS
 const nodeWidth = 300; 
 const nodeHeight = 120; 
 
@@ -219,7 +220,10 @@ function init() {
     root.x0 = height / 2;
     root.y0 = 0;
     
-    if (root.children) { root.children.forEach(collapseDeep); }
+    // COLAPSA todas las subramas al cargar la página
+    if (root.children) {
+        root.children.forEach(collapseDeep); 
+    }
     update(root);
     
     let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
@@ -255,6 +259,7 @@ function update(source) {
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
+    // TEXTO DEL NODO
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
@@ -420,13 +425,13 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// 🚀 NUEVA LÓGICA: IMAGEN GIGANTE DE ALTA RESOLUCIÓN PARA PLOTEO
+// 🚀 MÉTODO DEFINITIVO: NUEVA PESTAÑA VECTORIAL DE PLOTEO
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("Generando archivo de imagen en Altísima Resolución para Plóter...\n\nEsto puede tardar entre 10 y 15 segundos. La pantalla podría parpadear. ¡No cierres la página!");
+        alert("Generando Organigrama para Plóter...\n\nSe abrirá una NUEVA PESTAÑA con el mapa completo perfectamente encuadrado.\n\nCuando se abra la ventana de imprimir, asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Diseño: 'Horizontal'\n3. Gráficos de fondo: 'Activados'\n4. Márgenes: 'Ninguno'");
 
-        // 1. Expandir TODO el organigrama
+        // 1. Expandir TODO el organigrama automáticamente
         function expandAll(d) {
             if (d._children) { d.children = d._children; d._children = null; }
             if (d.children) { d.children.forEach(expandAll); }
@@ -434,63 +439,58 @@ if (downloadFab) {
         expandAll(root);
         update(root);
 
-        // 2. Dar tiempo a la animación para que abra las cajas
+        // 2. Dar tiempo a la animación (850ms)
         setTimeout(() => {
-            const container = document.getElementById('tree-container');
-            const svgEl = container.querySelector('svg');
+            const svgEl = document.querySelector('#tree-container svg');
             const gEl = svgEl.querySelector('g');
             
-            // Medir el tamaño real del mapa desplegado en pixeles
+            // Medir el tamaño real matemático del mapa desplegado
             const bbox = gEl.getBBox();
             
-            // Respaldar estilos para luego restaurarlos
-            const oldTransform = gEl.getAttribute('transform');
-            const oldWidth = container.style.width;
-            const oldHeight = container.style.height;
+            // 3. Crear una copia exacta del SVG
+            const clone = svgEl.cloneNode(true);
+            
+            // 4. Ajustar el "Lente" (ViewBox) de la copia para que enfoque solo el mapa
+            clone.setAttribute('viewBox', `${bbox.x - 50} ${bbox.y - 50} ${bbox.width + 100} ${bbox.height + 100}`);
+            clone.setAttribute('width', '100%');
+            clone.setAttribute('height', '100%');
+            
+            // Quitar el Zoom/Pan manual para que la nueva ventana asuma el control
+            clone.querySelector('g').removeAttribute('transform');
+            
+            // Ocultar botones de edición para la impresión
+            clone.querySelectorAll('.node-actions').forEach(el => el.style.display = 'none');
 
-            // Definir tamaño final exacto + un margen de 100px
-            const finalWidth = bbox.width + 100;
-            const finalHeight = bbox.height + 100;
+            // 5. Abrir una nueva pestaña limpia y meter el mapa
+            const printWin = window.open('', '_blank');
+            printWin.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Organigrama_Ploteo_Gigante</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+                        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: white; font-family: 'Noto Sans', sans-serif; overflow: hidden; }
+                        svg { width: 100vw; height: 100vh; display: block; }
+                        @media print {
+                            @page { size: landscape; margin: 0; }
+                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${clone.outerHTML}
+                    <script>
+                        setTimeout(() => { window.print(); }, 1000);
+                    </script>
+                </body>
+                </html>
+            `);
+            printWin.document.close();
 
-            // Ajustar contenedor forzando al navegador a darle espacio infinito
-            container.style.width = finalWidth + 'px';
-            container.style.height = finalHeight + 'px';
-            gEl.setAttribute('transform', `translate(${-bbox.x + 50}, ${-bbox.y + 50})`);
-
-            // 3. Crear imagen con DomToImage, pero multiplicando su resolución x2
-            const scale = 2;
-            domtoimage.toPng(container, { 
-                bgcolor: '#FFFFFF',
-                width: finalWidth * scale,
-                height: finalHeight * scale,
-                style: {
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                    width: finalWidth + 'px',
-                    height: finalHeight + 'px'
-                }
-            })
-            .then(function (dataUrl) {
-                // Forzar descarga de la imagen gigante
-                const link = document.createElement('a');
-                link.download = 'Organigrama_Ploteo_Gigante.png';
-                link.href = dataUrl;
-                link.click();
-
-                // 4. Restaurar el mapa a la normalidad en pantalla
-                container.style.width = oldWidth || '100%';
-                container.style.height = oldHeight || '100%';
-                gEl.setAttribute('transform', oldTransform);
-                init(); // Lo vuelve a colapsar
-            })
-            .catch(function (error) {
-                console.error('Error al generar:', error);
-                alert("Ocurrió un error. Tu navegador podría no tener memoria suficiente para una imagen tan colosal.");
-                container.style.width = oldWidth || '100%';
-                container.style.height = oldHeight || '100%';
-                gEl.setAttribute('transform', oldTransform);
-                init();
-            });
+            // 6. Restaurar el mapa en tu página original para que siga viéndose bien
+            init(); 
 
         }, 850); 
     });
