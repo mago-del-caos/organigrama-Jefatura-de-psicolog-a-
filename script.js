@@ -180,14 +180,13 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (TAMAÑOS COMPACTOS Y OPTIMIZADOS)
+// 2. CONFIGURACIÓN D3.js
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// TAMAÑOS
 const nodeWidth = 300; 
 const nodeHeight = 120; 
 
@@ -220,10 +219,7 @@ function init() {
     root.x0 = height / 2;
     root.y0 = 0;
     
-    // COLAPSA todas las subramas al cargar la página
-    if (root.children) {
-        root.children.forEach(collapseDeep); 
-    }
+    if (root.children) { root.children.forEach(collapseDeep); }
     update(root);
     
     let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
@@ -231,13 +227,8 @@ function init() {
     svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.85));
 }
 
-// Función que esconde los hijos recursivamente
 function collapseDeep(d) {
-    if (d.children) { 
-        d._children = d.children; 
-        d._children.forEach(collapseDeep); 
-        d.children = null; 
-    }
+    if (d.children) { d._children = d.children; d._children.forEach(collapseDeep); d.children = null; }
 }
 
 function update(source) {
@@ -264,7 +255,6 @@ function update(source) {
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
-    // TEXTO DEL NODO
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
@@ -320,99 +310,68 @@ function diagonal(s, d) {
         : `M ${s.x} ${s.y} C ${s.x} ${(s.y + d.y) / 2}, ${d.x} ${(s.y + d.y) / 2}, ${d.x} ${d.y}`;
 }
 
-// Función que expande o colapsa al dar clic
 function clickNode(event, d) {
     if (d.children) { d._children = d.children; d.children = null; } 
     else { d.children = d._children; d._children = null; }
     update(d);
 }
 
-// 3. FUNCIONES DIRECTAS DE EDICIÓN
+// 3. FUNCIONES DE EDICIÓN
 function promptEditNode(d) {
-    const newName = prompt("Editar nombre del cargo o área:", d.data.name);
+    const newName = prompt("Editar nombre:", d.data.name);
     if (newName !== null && newName.trim() !== "") {
-        d.data.name = newName.trim();
-        saveOrgData();
-        init(); 
+        d.data.name = newName.trim(); saveOrgData(); init(); 
     }
 }
-
 function promptAddChild(d) {
     const newName = prompt("Escribe el nombre del nuevo subnodo:");
     if (newName !== null && newName.trim() !== "") {
         if (!d.data.children) d.data.children = [];
         d.data.children.push({ name: newName.trim() });
         if (d._children) { d.children = d._children; d._children = null; }
-        saveOrgData();
-        init(); 
+        saveOrgData(); init(); 
     }
 }
-
 function promptDeleteNode(d) {
-    if (d === root) {
-        alert("El nodo principal (raíz) no se puede eliminar.");
-        return;
-    }
-    if (confirm(`¿Estás seguro de eliminar "${d.data.name}" y todos sus subniveles?`)) {
+    if (d === root) { alert("La raíz no se puede eliminar."); return; }
+    if (confirm(`¿Eliminar "${d.data.name}"?`)) {
         const parent = d.parent;
         if (parent && parent.data.children) {
             parent.data.children = parent.data.children.filter(child => child !== d.data);
             if (parent.data.children.length === 0) delete parent.data.children;
         }
-        saveOrgData();
-        init();
+        saveOrgData(); init();
     }
 }
 
-// 4. LÓGICA DE CONTROL DE ACCESO
+// 4. CONTROL DE ACCESO
 const authScreen = document.getElementById('auth-screen');
 const settingsFab = document.getElementById('settings-fab');
 
 document.getElementById('btn-guest-login').addEventListener('click', () => {
-    isAdmin = false;
-    authScreen.classList.add('hidden');
-    if (settingsFab) settingsFab.classList.add('hidden'); 
-    loadOrgDataFromCloud();
+    isAdmin = false; authScreen.classList.add('hidden'); if (settingsFab) settingsFab.classList.add('hidden'); loadOrgDataFromCloud();
 });
-
 document.getElementById('btn-admin-login').addEventListener('click', () => {
     const pass = document.getElementById('admin-pass-input').value.trim();
     if (pass === "psique33" || pass === "lulut" || pass === "L0b0l0b0") {
-        isAdmin = true;
-        authScreen.classList.add('hidden');
-        if (settingsFab) settingsFab.classList.remove('hidden'); 
-        loadOrgDataFromCloud();
-    } else {
-        alert("Contraseña incorrecta. Intenta de nuevo.");
-    }
+        isAdmin = true; authScreen.classList.add('hidden'); if (settingsFab) settingsFab.classList.remove('hidden'); loadOrgDataFromCloud();
+    } else { alert("Contraseña incorrecta."); }
 });
 
 // 5. MODAL DE AJUSTES
 const settingsModal = document.getElementById('settings-modal');
 const closeModalBtn = document.getElementById('close-modal');
 
-if (settingsFab) {
-    settingsFab.addEventListener('click', () => {
-        if (!isAdmin) return;
-        settingsModal.classList.remove('hidden');
-    });
-}
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', () => {
-        settingsModal.classList.add('hidden');
-    });
-}
+if (settingsFab) { settingsFab.addEventListener('click', () => { if (!isAdmin) return; settingsModal.classList.remove('hidden'); }); }
+if (closeModalBtn) { closeModalBtn.addEventListener('click', () => { settingsModal.classList.add('hidden'); }); }
 
 const btnExportJson = document.getElementById('btn-export-json');
 if (btnExportJson) {
     btnExportJson.addEventListener('click', () => {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orgData, null, 2));
         const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", "orgData_Respaldo.json");
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
+        downloadAnchor.setAttribute("href", dataStr); downloadAnchor.setAttribute("download", "orgData_Respaldo.json");
+        document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove();
     });
 }
 
@@ -421,16 +380,10 @@ const btnImportJson = document.getElementById('btn-import-json');
 if (btnImportJson && importFileInput) {
     btnImportJson.addEventListener('click', () => importFileInput.click());
     importFileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(evt) {
-            try {
-                orgData = JSON.parse(evt.target.result);
-                saveOrgData();
-                init();
-                settingsModal.classList.add('hidden');
-                alert("Organigrama restaurado con éxito.");
+            try { orgData = JSON.parse(evt.target.result); saveOrgData(); init(); settingsModal.classList.add('hidden'); alert("Organigrama restaurado con éxito.");
             } catch (err) { alert("Archivo JSON no válido."); }
         };
         reader.readAsText(file);
@@ -440,24 +393,18 @@ if (btnImportJson && importFileInput) {
 const btnResetOrg = document.getElementById('btn-reset-org');
 if (btnResetOrg) {
     btnResetOrg.addEventListener('click', () => {
-        if (confirm("¿Estás seguro de restaurar el organigrama original? Se perderán los cambios en la nube.")) {
-            localStorage.removeItem('org_lad_data');
-            orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
-            saveOrgData();
-            init();
-            settingsModal.classList.add('hidden');
+        if (confirm("¿Restaurar el organigrama original?")) {
+            localStorage.removeItem('org_lad_data'); orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA)); saveOrgData(); init(); settingsModal.classList.add('hidden');
         }
     });
 }
 
-// 6. LÓGICA DE INTERFAZ, TABS Y FLUJO
+// 6. LÓGICA DE INTERFAZ Y NUEVO MÉTODO PARA PLÓTER
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
-        evt.currentTarget.classList.add('active');
-    }
+    if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) { evt.currentTarget.classList.add('active'); }
 }
 function showTab(tabId, evt) {
     setActiveTab(evt);
@@ -466,21 +413,20 @@ function showTab(tabId, evt) {
     if (downloadFab) downloadFab.classList.add('hidden'); 
 }
 function showOrgTab(orient, evt) {
-    setActiveTab(evt);
-    orientation = orient;
+    setActiveTab(evt); orientation = orient;
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById('org-tab').classList.add('active');
     if (downloadFab) downloadFab.classList.remove('hidden'); 
     setTimeout(() => init(), 100);
 }
 
-// NUEVA LÓGICA DE EXPORTACIÓN A PDF PARA PLÓTER
+// 🚀 NUEVA LÓGICA: IMAGEN GIGANTE DE ALTA RESOLUCIÓN PARA PLOTEO
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("Preparando archivo de alta resolución...\n\nEn la siguiente ventana, asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Gráficos de fondo: Activados\n3. Márgenes: Ninguno");
+        alert("Generando archivo de imagen en Altísima Resolución para Plóter...\n\nEsto puede tardar entre 10 y 15 segundos. La pantalla podría parpadear. ¡No cierres la página!");
 
-        // 1. Expandir TODO el organigrama automáticamente
+        // 1. Expandir TODO el organigrama
         function expandAll(d) {
             if (d._children) { d.children = d._children; d._children = null; }
             if (d.children) { d.children.forEach(expandAll); }
@@ -488,68 +434,88 @@ if (downloadFab) {
         expandAll(root);
         update(root);
 
-        // 2. Dar tiempo a la animación (850ms)
+        // 2. Dar tiempo a la animación para que abra las cajas
         setTimeout(() => {
-            const svgEl = document.querySelector('#tree-container svg');
+            const container = document.getElementById('tree-container');
+            const svgEl = container.querySelector('svg');
             const gEl = svgEl.querySelector('g');
             
-            // Medir el tamaño colosal del mapa
+            // Medir el tamaño real del mapa desplegado en pixeles
             const bbox = gEl.getBBox();
             
+            // Respaldar estilos para luego restaurarlos
             const oldTransform = gEl.getAttribute('transform');
-            const oldWidth = svgEl.style.width;
-            const oldHeight = svgEl.style.height;
+            const oldWidth = container.style.width;
+            const oldHeight = container.style.height;
 
-            // Ajustar el lienzo al tamaño exacto
+            // Definir tamaño final exacto + un margen de 100px
+            const finalWidth = bbox.width + 100;
+            const finalHeight = bbox.height + 100;
+
+            // Ajustar contenedor forzando al navegador a darle espacio infinito
+            container.style.width = finalWidth + 'px';
+            container.style.height = finalHeight + 'px';
             gEl.setAttribute('transform', `translate(${-bbox.x + 50}, ${-bbox.y + 50})`);
-            svgEl.style.width = (bbox.width + 100) + 'px';
-            svgEl.style.height = (bbox.height + 100) + 'px';
-            
-            // 3. Imprimir a PDF
-            window.print();
 
-            // 4. Regresar a la normalidad
-            setTimeout(() => {
+            // 3. Crear imagen con DomToImage, pero multiplicando su resolución x2
+            const scale = 2;
+            domtoimage.toPng(container, { 
+                bgcolor: '#FFFFFF',
+                width: finalWidth * scale,
+                height: finalHeight * scale,
+                style: {
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top left',
+                    width: finalWidth + 'px',
+                    height: finalHeight + 'px'
+                }
+            })
+            .then(function (dataUrl) {
+                // Forzar descarga de la imagen gigante
+                const link = document.createElement('a');
+                link.download = 'Organigrama_Ploteo_Gigante.png';
+                link.href = dataUrl;
+                link.click();
+
+                // 4. Restaurar el mapa a la normalidad en pantalla
+                container.style.width = oldWidth || '100%';
+                container.style.height = oldHeight || '100%';
                 gEl.setAttribute('transform', oldTransform);
-                svgEl.style.width = oldWidth || '100%';
-                svgEl.style.height = oldHeight || '100%';
-                init(); // Vuelve a colapsar el mapa para que sea amigable en web
-            }, 1000);
+                init(); // Lo vuelve a colapsar
+            })
+            .catch(function (error) {
+                console.error('Error al generar:', error);
+                alert("Ocurrió un error. Tu navegador podría no tener memoria suficiente para una imagen tan colosal.");
+                container.style.width = oldWidth || '100%';
+                container.style.height = oldHeight || '100%';
+                gEl.setAttribute('transform', oldTransform);
+                init();
+            });
 
         }, 850); 
     });
 }
 
+// 7. LÓGICA DE RUTAS Y FLUJOS
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
 function updateWorkflowSelects() {
     if (!selectOrigen || !selectDestino) return;
-    selectOrigen.innerHTML = "";
-    selectDestino.innerHTML = "";
+    selectOrigen.innerHTML = ""; selectDestino.innerHTML = "";
     const allNodesList = d3.hierarchy(orgData).descendants().map(d => d.data.name);
 
     allNodesList.forEach(name => {
-        let opt1 = document.createElement('option');
-        opt1.value = opt1.innerHTML = name;
-        selectOrigen.appendChild(opt1);
-        
-        let opt2 = document.createElement('option');
-        opt2.value = opt2.innerHTML = name;
-        selectDestino.appendChild(opt2);
+        let opt1 = document.createElement('option'); opt1.value = opt1.innerHTML = name; selectOrigen.appendChild(opt1);
+        let opt2 = document.createElement('option'); opt2.value = opt2.innerHTML = name; selectDestino.appendChild(opt2);
     });
 }
 
 const calcRutaBtn = document.getElementById('calc-ruta');
 if (calcRutaBtn) {
     calcRutaBtn.addEventListener('click', () => {
-        const valOrigen = selectOrigen.value;
-        const valDestino = selectDestino.value;
-        
-        if(valOrigen === valDestino) {
-            alert("El origen y el destino deben ser áreas diferentes.");
-            return;
-        }
+        const valOrigen = selectOrigen.value; const valDestino = selectDestino.value;
+        if(valOrigen === valDestino) { alert("Áreas diferentes."); return; }
 
         const rootCalc = d3.hierarchy(orgData);
         const nodeOrigen = rootCalc.find(d => d.data.name === valOrigen);
@@ -564,85 +530,45 @@ if (calcRutaBtn) {
         path.forEach((nodo, index) => {
             flowHTML += `<span class="step">${nodo.data.name}</span>`;
             if(index < path.length - 1) {
-                const currDepth = nodo.depth;
-                const nextDepth = path[index + 1].depth;
-                let arrow = "➔"; 
-                if (nextDepth < currDepth) arrow = "⬆️"; 
-                else if (nextDepth > currDepth) arrow = "⬇️"; 
+                const currDepth = nodo.depth; const nextDepth = path[index + 1].depth;
+                let arrow = "➔"; if (nextDepth < currDepth) arrow = "⬆️"; else if (nextDepth > currDepth) arrow = "⬇️"; 
                 flowHTML += `<span class="arrow">${arrow}</span>`;
             }
         });
 
-        let textoResultado = intermedios === 0 ? "Canalización y comunicación directa (sin áreas intermedias)." : `La canalización requiere pasar por ${intermedios} instancia(s) intermedias.`;
-        document.getElementById('personas-entre').innerText = textoResultado;
+        document.getElementById('personas-entre').innerText = intermedios === 0 ? "Flujo directo." : `Requiere ${intermedios} instancias intermedias.`;
         document.getElementById('ruta-flujo').innerHTML = flowHTML;
         document.getElementById('resultado-flujo').classList.remove('hidden');
     });
 }
 
-// 7. MODO OSCURO
+// 8. MODO OSCURO
 const darkModeToggle = document.getElementById('dark-mode-toggle');
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    if (darkModeToggle) darkModeToggle.textContent = '🌙'; 
-} else {
-    if (darkModeToggle) darkModeToggle.textContent = '☀️'; 
-}
+if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); if (darkModeToggle) darkModeToggle.textContent = '🌙'; } 
+else { if (darkModeToggle) darkModeToggle.textContent = '☀️'; }
 if (darkModeToggle) {
     darkModeToggle.addEventListener('click', (e) => {
         document.body.classList.toggle('dark-mode');
-        if (document.body.classList.contains('dark-mode')) {
-            e.currentTarget.textContent = '🌙';
-            localStorage.setItem('theme', 'dark');
-        } else {
-            e.currentTarget.textContent = '☀️';
-            localStorage.setItem('theme', 'light');
-        }
+        if (document.body.classList.contains('dark-mode')) { e.currentTarget.textContent = '🌙'; localStorage.setItem('theme', 'dark'); } 
+        else { e.currentTarget.textContent = '☀️'; localStorage.setItem('theme', 'light'); }
     });
 }
 
-// 8. PWA LÓGICA 
-let deferredPrompt;
-let installAttempts = 0; 
-const installBtn = document.getElementById('install-btn');
-
-window.addEventListener('load', () => {
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        if (installBtn) installBtn.classList.add('hidden');
-    }
-});
-
-window.addEventListener('appinstalled', () => {
-    if (installBtn) installBtn.classList.add('hidden');
-});
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); 
-    deferredPrompt = e; 
-});
-
+// 9. PWA
+let deferredPrompt; let installAttempts = 0; const installBtn = document.getElementById('install-btn');
+window.addEventListener('load', () => { if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) { if (installBtn) installBtn.classList.add('hidden'); } });
+window.addEventListener('appinstalled', () => { if (installBtn) installBtn.classList.add('hidden'); });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 if (installBtn) {
     installBtn.addEventListener('click', async () => {
         let installed = false;
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (outcome === 'accepted') { installed = true; installBtn.classList.add('hidden'); }
-            else { installAttempts++; }
-        } else { installAttempts++; }
-
-        if (!installed && installAttempts >= 5) {
-            alert("Para instalar la app en este dispositivo:\n\nEn PC: Haz clic en el ícono de 'Instalar' en la barra de direcciones.\n\nEn Móvil: Selecciona 'Agregar a pantalla de inicio' o 'Instalar app'.");
-            installAttempts = 0; 
-        }
+        if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; deferredPrompt = null; if (outcome === 'accepted') { installed = true; installBtn.classList.add('hidden'); } else { installAttempts++; } } 
+        else { installAttempts++; }
+        if (!installed && installAttempts >= 5) { alert("Usa las opciones del navegador para instalar."); installAttempts = 0; }
     });
 }
 
 let resizeTimer;
 window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-        d3.select("#tree-container svg").attr("width", "100%").attr("height", "100%");
-    }, 200);
+    clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { d3.select("#tree-container svg").attr("width", "100%").attr("height", "100%"); }, 200);
 });
