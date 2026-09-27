@@ -17,10 +17,132 @@ if ('serviceWorker' in navigator) {
 
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA
+// 1. DATOS DEL ORGANIGRAMA (ESTRUCTURA DETALLADA Y PULIDA)
 const DEFAULT_ORG_DATA = {
   name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
-  children: [] // Los datos reales se cargan del JSON que importaste
+  children: [
+    {
+      name: "Apoyo 1. Atención en la planeación académico-curricular",
+      children: [
+        { name: "Dar seguimiento al desarrollo, revisión y actualización de los componentes académicos de las UCA (áreas Educativa, Clínica, Social y Laboral)" },
+        { name: "Planear actividades académicas curriculares y extracurriculares (coloquios y encuentros)" },
+        { name: "Apoyar en el desarrollo de coloquios y encuentros académicos de la Licenciatura" },
+        {
+          name: "Apoyo 1.1 Análisis de información académica",
+          children: [
+            { name: "Realizar informes trimestrales y anuales requeridos por la Universidad" },
+            { name: "Analizar la información estadística de resultados académicos para identificar tendencias y necesidades" },
+            { name: "Generar reportes como insumo para la toma de decisiones (cursos de recuperación académica intersemestral)" },
+            { name: "Sistematización y análisis para metas cuantitativas (Alineación con Plan Nacional de Desarrollo y Programa Institucional UNRC)" },
+            { name: "Revisar y proponer la oferta de UCA y grupos cada semestre para intersemestrales y exámenes extraordinarios" },
+            { name: "Revisar y proponer perfiles docentes para proyectos de prácticas profesionales" }
+          ]
+        },
+        { name: "Apoyo en la coordinación y diseño de diplomados de titulación para la Licenciatura en Psicología a Distancia" }
+      ]
+    },
+    {
+      name: "Apoyo 2. Acompañamiento docente (Inducción y fortalecimiento del modelo educativo)",
+      children: [
+        { name: "Colaborar en la proyección docente de cada ciclo escolar con base en la oferta académica" },
+        { name: "Identificar, valorar y seleccionar perfiles docentes acordes a los requerimientos y la modalidad a distancia" },
+        { name: "Colaborar en la asignación docente de cada semestre (UCA, grupos y perfiles)" },
+        { name: "Participar en la inducción a docentes de nuevo ingreso (operación académica, UCA, AVA)" },
+        { name: "Brindar apoyo a la Jefatura en la comunicación, seguimiento y acompañamiento de las y los docentes, contribuyendo a la atención oportuna de los procesos" },
+        { name: "Mantenerse atento a la Guía docente para realizar retroalimentación académica y realizar sesiones virtuales síncronas" },
+        { name: "Analizar, dar seguimiento y canalizar casos de incidencias en el desempeño docente (Supervisor)" }
+      ]
+    },
+    {
+      name: "Apoyo 3. Promover las estrategias 3R (Trayectoria académica, permanencia y atención)",
+      children: [
+        {
+          name: "Apoyo 3.1 Responsable de Seguimiento y Prevención del Abandono Académico",
+          children: [
+            { name: "Brindar atención presencial a estudiantes en sede GAM para dudas sobre UCA" },
+            { name: "Canalizar inquietudes sobre procesos de titulación y alternativas de acreditación" },
+            { name: "Proponer estrategias de permanencia del estudiante en la UNRC" },
+            { name: "Dar seguimiento a la trayectoria académica del estudiante" },
+            { name: "Dar seguimiento a través de estrategias de recuperación a estudiantes identificados por el SAME en estatus \"Nunca\" e \"Inactivos\"" },
+            { name: "Identificar señales de riesgo de abandono académico mediante el seguimiento en AVA, y brindar orientación para favorecer la permanencia" },
+            { name: "Brindar atención y canalización presencial a estudiantes en sede GAM para dudas académicas y administrativas" },
+            { name: "Coordinar y desarrollar sesiones de atención estudiantil los días viernes, prioritariamente a estudiantes \"Nunca\" e \"Inactivo\"" },
+            { name: "Registrar casos atendidos y dar seguimiento a los acuerdos o acciones establecidas con cada estudiante" },
+            { name: "Identificar causas de riesgo académico y canalizar los casos a las áreas pertinentes" },
+            { name: "Elaborar reportes periódicos para la Jefatura sobre casos atendidos, seguimiento y resultados" }
+          ]
+        },
+        {
+          name: "Apoyo 3.2 Riesgo y Comunicación",
+          children: [
+            { name: "Realizar mesas de trabajo en coordinación con un responsable docente para la elaboración de materiales" },
+            { name: "Dar seguimiento a la aplicación del instrumento de medición para evaluar recursos educativos de Retención, Recuperación y Reforzamiento (3R)" },
+            { name: "Analizar resultados, detectar áreas de oportunidad y proponer ajustes o mejoras de recursos" },
+            { name: "Generar reportes de seguimiento para brindar información objetiva en la toma de decisiones y mejora continua" }
+          ]
+        },
+        {
+          name: "Apoyo 3.3 Reforzamiento en Cursos académicos, Estancias y Titulación",
+          children: [
+            { name: "Acompañar los procesos de creación de cursos de formación docente y extracurriculares" },
+            { name: "Acompañamiento a UCA de estancias laborales y seminarios de titulación (Planes 2020 y 2023)" },
+            { name: "Crear mesas de trabajo entre docentes expertos para estandarizar estructura, objetivos y rúbricas de nuevos cursos" },
+            { name: "Programar sesiones de unificación de criterios para asesores de titulación (procesos metodológicos acordes)" },
+            { name: "Programar sesiones periódicas de seguimiento de prácticas profesionales para acompañar a docentes y garantizar metas" }
+          ]
+        }
+      ]
+    },
+    {
+      name: "Apoyo 4. Apoyo responsable en estrategias de egreso y titulación",
+      children: [
+        { name: "Diseñar y proponer estrategias de acompañamiento para el egreso y la titulación" },
+        { name: "Elaborar y aplicar formularios de diagnóstico para identificar necesidades, avances y dificultades de egreso" },
+        { name: "Organizar sesiones informativas con estudiantes para conocer necesidades y brindar orientación sobre titulación" },
+        { name: "Dar seguimiento a estudiantes próximos a egresar identificando factores que puedan retrasar el proceso" },
+        { name: "Sistematizar información de formularios y sesiones para identificar áreas de oportunidad" },
+        { name: "Mantener comunicación con áreas correspondientes para canalizar casos que requieran atención específica" },
+        { name: "Elaborar reportes periódicos sobre las acciones realizadas y avances en las estrategias de egreso" }
+      ]
+    },
+    {
+      name: "Apoyo 5. Atención de incidencias (identificadas y reportadas por tutores)",
+      children: [
+        { name: "Revisar y atender de manera continua los correos de la Licenciatura en Psicología a Distancia" },
+        { name: "Identificar solicitud y determinar ruta de atención (canalización al apoyo, SAME, Jefatura o área competente)" },
+        { name: "Dar respuesta directa a los correos correspondientes a la Licenciatura" },
+        { name: "Organizar y sistematizar los correos atendidos para contar con registro" },
+        { name: "Canalizar incidencias reportadas por Tutoría a LPSI-LAD y reportar resultados a la Jefatura" }
+      ]
+    },
+    {
+      name: "Apoyo 6. Acompañamiento, comunicación y seguimiento",
+      children: [
+        { name: "Construcción de indicadores y aplicación de formularios para identificar necesidades académicas" },
+        { name: "Realizar análisis y triangulación de datos (patrones de comportamiento de estudiantes)" },
+        { name: "Integrar y analizar resultados de formularios conforme a indicadores y estatus" },
+        { name: "Elaboración de reportes de seguimiento y monitoreo académico para medidas emergentes/remediales" },
+        { name: "Implementar campañas y estrategias de alfabetización en nuevas tecnologías en psicología" }
+      ]
+    },
+    {
+      name: "SAME (Supervisor de Acompañamiento para la Mejora Educativa)",
+      children: [
+        { name: "Seguimiento docente mediante revisión de ingreso a plataforma, plan de trabajo, foros y tareas auténticas" },
+        { name: "Integrar concentrado (nombre, correo, teléfono, UCA y grupos) para comunicación y seguimiento" },
+        { name: "Brindar información inicial sobre el curso, canales de comunicación y acompañamiento" },
+        { name: "Revisar que foros, tareas, plan de trabajo y recursos estén disponibles (sin restricciones de tiempo)" },
+        { name: "Enviar al inicio de cada módulo información sobre fechas relevantes y procesos académicos" },
+        { name: "Monitorear semanalmente el acceso de los docentes a la plataforma y seguimiento a incidencias" },
+        { name: "Supervisar acciones de recuperación, retención y regularización (remitir info a Trayectoria y Permanencia)" },
+        { name: "Verificar evaluaciones en tiempo y forma y emitir retroalimentación cuando sea necesario" },
+        { name: "Integrar y entregar el formato de seguimiento correspondiente a cada unidad" },
+        { name: "Descargar los calificadores al cierre del bloque y tomar captura de gráficas de asistencia" },
+        { name: "Corroborar las calificaciones registradas una vez cerrada la plataforma" },
+        { name: "Dar seguimiento al llenado, entrega y validación de actas, revisando la documentación docente" }
+      ]
+    }
+  ]
 };
 
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
@@ -65,7 +187,7 @@ let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// NUEVOS TAMAÑOS: Más compactos, mantienen scroll interno
+// TAMAÑOS: Más compactos (300x120), mantienen scroll interno
 const nodeWidth = 300; 
 const nodeHeight = 120; 
 
@@ -99,7 +221,7 @@ function init() {
     root.x0 = height / 2;
     root.y0 = 0;
     
-    // MAGIA DE COMPRESIÓN: Colapsa todas las subramas al cargar la página
+    // COLAPSA todas las subramas al cargar la página
     if (root.children) {
         root.children.forEach(collapseDeep); 
     }
@@ -134,7 +256,7 @@ function update(source) {
         .attr("width", nodeWidth).attr("height", nodeHeight)
         .attr("x", -(nodeWidth/2)).attr("y", -(nodeHeight/2))
         .attr("rx", 8).attr("ry", 8)
-        .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR) // Dorado si tiene hijos ocultos, Guinda si no
+        .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR)
         .style("stroke", TERTIARY_COLOR).style("stroke-width", "2px").style("filter", "url(#drop-shadow)");
 
     const foDiv = nodeEnter.append("foreignObject")
@@ -143,7 +265,7 @@ function update(source) {
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
-    // TEXTO DEL NODO (Fuente más pequeña y scroll interno)
+    // TEXTO DEL NODO
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
@@ -243,7 +365,7 @@ function promptDeleteNode(d) {
     }
 }
 
-// 4. LÓGICA DE CONTROL DE ACCESO (GATEKEEPER)
+// 4. LÓGICA DE CONTROL DE ACCESO
 const authScreen = document.getElementById('auth-screen');
 const settingsFab = document.getElementById('settings-fab');
 
@@ -329,7 +451,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ, TABS Y FLUJO
+// 6. LÓGICA DE INTERFAZ Y DESCARGA PARA PLÓTER
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -353,21 +475,53 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
+// LOGICA NUEVA DE EXPORTACIÓN A PDF VECTORIAL (PARA PLOTEO)
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        const node = document.getElementById('tree-container');
-        domtoimage.toPng(node, { bgcolor: getComputedStyle(document.body).getPropertyValue('--bg-color') })
-            .then(function (dataUrl) {
-                const link = document.createElement('a');
-                link.download = 'Organigrama_LAD_UNRC.png';
-                link.href = dataUrl;
-                link.click();
-            })
-            .catch(function (error) { console.error('Error al descargar:', error); });
+        alert("Preparando archivo de alta resolución...\n\nEn la siguiente ventana, asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Gráficos de fondo: Activados\n3. Márgenes: Ninguno");
+
+        // 1. Expandir TODO el organigrama automáticamente
+        function expandAll(d) {
+            if (d._children) { d.children = d._children; d._children = null; }
+            if (d.children) { d.children.forEach(expandAll); }
+        }
+        expandAll(root);
+        update(root);
+
+        // 2. Dar tiempo a la animación (850ms)
+        setTimeout(() => {
+            const svgEl = document.querySelector('#tree-container svg');
+            const gEl = svgEl.querySelector('g');
+            
+            // Medir el tamaño colosal del mapa
+            const bbox = gEl.getBBox();
+            
+            const oldTransform = gEl.getAttribute('transform');
+            const oldWidth = svgEl.style.width;
+            const oldHeight = svgEl.style.height;
+
+            // Ajustar el lienzo al tamaño exacto
+            gEl.setAttribute('transform', `translate(${-bbox.x + 50}, ${-bbox.y + 50})`);
+            svgEl.style.width = (bbox.width + 100) + 'px';
+            svgEl.style.height = (bbox.height + 100) + 'px';
+            
+            // 3. Imprimir a PDF
+            window.print();
+
+            // 4. Regresar a la normalidad
+            setTimeout(() => {
+                gEl.setAttribute('transform', oldTransform);
+                svgEl.style.width = oldWidth || '100%';
+                svgEl.style.height = oldHeight || '100%';
+                init(); // Vuelve a colapsar el mapa para que sea amigable en web
+            }, 1000);
+
+        }, 850); 
     });
 }
 
+// LÓGICA DE RUTAS DE FLUJO
 const selectOrigen = document.getElementById('origen');
 const selectDestino = document.getElementById('destino');
 
