@@ -17,132 +17,10 @@ if ('serviceWorker' in navigator) {
 
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA (ESTRUCTURA DETALLADA Y PULIDA)
+// 1. DATOS DEL ORGANIGRAMA
 const DEFAULT_ORG_DATA = {
   name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
-  children: [
-    {
-      name: "Apoyo 1. Atención en la planeación académico-curricular",
-      children: [
-        { name: "Dar seguimiento al desarrollo, revisión y actualización de los componentes académicos de las UCA (áreas Educativa, Clínica, Social y Laboral)" },
-        { name: "Planear actividades académicas curriculares y extracurriculares (coloquios y encuentros)" },
-        { name: "Apoyar en el desarrollo de coloquios y encuentros académicos de la Licenciatura" },
-        {
-          name: "Apoyo 1.1 Análisis de información académica",
-          children: [
-            { name: "Realizar informes trimestrales y anuales requeridos por la Universidad" },
-            { name: "Analizar la información estadística de resultados académicos para identificar tendencias y necesidades" },
-            { name: "Generar reportes como insumo para la toma de decisiones (cursos de recuperación académica intersemestral)" },
-            { name: "Sistematización y análisis para metas cuantitativas (Alineación con Plan Nacional de Desarrollo y Programa Institucional UNRC)" },
-            { name: "Revisar y proponer la oferta de UCA y grupos cada semestre para intersemestrales y exámenes extraordinarios" },
-            { name: "Revisar y proponer perfiles docentes para proyectos de prácticas profesionales" }
-          ]
-        },
-        { name: "Apoyo en la coordinación y diseño de diplomados de titulación para la Licenciatura en Psicología a Distancia" }
-      ]
-    },
-    {
-      name: "Apoyo 2. Acompañamiento docente (Inducción y fortalecimiento del modelo educativo)",
-      children: [
-        { name: "Colaborar en la proyección docente de cada ciclo escolar con base en la oferta académica" },
-        { name: "Identificar, valorar y seleccionar perfiles docentes acordes a los requerimientos y la modalidad a distancia" },
-        { name: "Colaborar en la asignación docente de cada semestre (UCA, grupos y perfiles)" },
-        { name: "Participar en la inducción a docentes de nuevo ingreso (operación académica, UCA, AVA)" },
-        { name: "Brindar apoyo a la Jefatura en la comunicación, seguimiento y acompañamiento de las y los docentes, contribuyendo a la atención oportuna de los procesos" },
-        { name: "Mantenerse atento a la Guía docente para realizar retroalimentación académica y realizar sesiones virtuales síncronas" },
-        { name: "Analizar, dar seguimiento y canalizar casos de incidencias en el desempeño docente (Supervisor)" }
-      ]
-    },
-    {
-      name: "Apoyo 3. Promover las estrategias 3R (Trayectoria académica, permanencia y atención)",
-      children: [
-        {
-          name: "Apoyo 3.1 Responsable de Seguimiento y Prevención del Abandono Académico",
-          children: [
-            { name: "Brindar atención presencial a estudiantes en sede GAM para dudas sobre UCA" },
-            { name: "Canalizar inquietudes sobre procesos de titulación y alternativas de acreditación" },
-            { name: "Proponer estrategias de permanencia del estudiante en la UNRC" },
-            { name: "Dar seguimiento a la trayectoria académica del estudiante" },
-            { name: "Dar seguimiento a través de estrategias de recuperación a estudiantes identificados por el SAME en estatus \"Nunca\" e \"Inactivos\"" },
-            { name: "Identificar señales de riesgo de abandono académico mediante el seguimiento en AVA, y brindar orientación para favorecer la permanencia" },
-            { name: "Brindar atención y canalización presencial a estudiantes en sede GAM para dudas académicas y administrativas" },
-            { name: "Coordinar y desarrollar sesiones de atención estudiantil los días viernes, prioritariamente a estudiantes \"Nunca\" e \"Inactivo\"" },
-            { name: "Registrar casos atendidos y dar seguimiento a los acuerdos o acciones establecidas con cada estudiante" },
-            { name: "Identificar causas de riesgo académico y canalizar los casos a las áreas pertinentes" },
-            { name: "Elaborar reportes periódicos para la Jefatura sobre casos atendidos, seguimiento y resultados" }
-          ]
-        },
-        {
-          name: "Apoyo 3.2 Riesgo y Comunicación",
-          children: [
-            { name: "Realizar mesas de trabajo en coordinación con un responsable docente para la elaboración de materiales" },
-            { name: "Dar seguimiento a la aplicación del instrumento de medición para evaluar recursos educativos de Retención, Recuperación y Reforzamiento (3R)" },
-            { name: "Analizar resultados, detectar áreas de oportunidad y proponer ajustes o mejoras de recursos" },
-            { name: "Generar reportes de seguimiento para brindar información objetiva en la toma de decisiones y mejora continua" }
-          ]
-        },
-        {
-          name: "Apoyo 3.3 Reforzamiento en Cursos académicos, Estancias y Titulación",
-          children: [
-            { name: "Acompañar los procesos de creación de cursos de formación docente y extracurriculares" },
-            { name: "Acompañamiento a UCA de estancias laborales y seminarios de titulación (Planes 2020 y 2023)" },
-            { name: "Crear mesas de trabajo entre docentes expertos para estandarizar estructura, objetivos y rúbricas de nuevos cursos" },
-            { name: "Programar sesiones de unificación de criterios para asesores de titulación (procesos metodológicos acordes)" },
-            { name: "Programar sesiones periódicas de seguimiento de prácticas profesionales para acompañar a docentes y garantizar metas" }
-          ]
-        }
-      ]
-    },
-    {
-      name: "Apoyo 4. Apoyo responsable en estrategias de egreso y titulación",
-      children: [
-        { name: "Diseñar y proponer estrategias de acompañamiento para el egreso y la titulación" },
-        { name: "Elaborar y aplicar formularios de diagnóstico para identificar necesidades, avances y dificultades de egreso" },
-        { name: "Organizar sesiones informativas con estudiantes para conocer necesidades y brindar orientación sobre titulación" },
-        { name: "Dar seguimiento a estudiantes próximos a egresar identificando factores que puedan retrasar el proceso" },
-        { name: "Sistematizar información de formularios y sesiones para identificar áreas de oportunidad" },
-        { name: "Mantener comunicación con áreas correspondientes para canalizar casos que requieran atención específica" },
-        { name: "Elaborar reportes periódicos sobre las acciones realizadas y avances en las estrategias de egreso" }
-      ]
-    },
-    {
-      name: "Apoyo 5. Atención de incidencias (identificadas y reportadas por tutores)",
-      children: [
-        { name: "Revisar y atender de manera continua los correos de la Licenciatura en Psicología a Distancia" },
-        { name: "Identificar solicitud y determinar ruta de atención (canalización al apoyo, SAME, Jefatura o área competente)" },
-        { name: "Dar respuesta directa a los correos correspondientes a la Licenciatura" },
-        { name: "Organizar y sistematizar los correos atendidos para contar con registro" },
-        { name: "Canalizar incidencias reportadas por Tutoría a LPSI-LAD y reportar resultados a la Jefatura" }
-      ]
-    },
-    {
-      name: "Apoyo 6. Acompañamiento, comunicación y seguimiento",
-      children: [
-        { name: "Construcción de indicadores y aplicación de formularios para identificar necesidades académicas" },
-        { name: "Realizar análisis y triangulación de datos (patrones de comportamiento de estudiantes)" },
-        { name: "Integrar y analizar resultados de formularios conforme a indicadores y estatus" },
-        { name: "Elaboración de reportes de seguimiento y monitoreo académico para medidas emergentes/remediales" },
-        { name: "Implementar campañas y estrategias de alfabetización en nuevas tecnologías en psicología" }
-      ]
-    },
-    {
-      name: "SAME (Supervisor de Acompañamiento para la Mejora Educativa)",
-      children: [
-        { name: "Seguimiento docente mediante revisión de ingreso a plataforma, plan de trabajo, foros y tareas auténticas" },
-        { name: "Integrar concentrado (nombre, correo, teléfono, UCA y grupos) para comunicación y seguimiento" },
-        { name: "Brindar información inicial sobre el curso, canales de comunicación y acompañamiento" },
-        { name: "Revisar que foros, tareas, plan de trabajo y recursos estén disponibles (sin restricciones de tiempo)" },
-        { name: "Enviar al inicio de cada módulo información sobre fechas relevantes y procesos académicos" },
-        { name: "Monitorear semanalmente el acceso de los docentes a la plataforma y seguimiento a incidencias" },
-        { name: "Supervisar acciones de recuperación, retención y regularización (remitir info a Trayectoria y Permanencia)" },
-        { name: "Verificar evaluaciones en tiempo y forma y emitir retroalimentación cuando sea necesario" },
-        { name: "Integrar y entregar el formato de seguimiento correspondiente a cada unidad" },
-        { name: "Descargar los calificadores al cierre del bloque y tomar captura de gráficas de asistencia" },
-        { name: "Corroborar las calificaciones registradas una vez cerrada la plataforma" },
-        { name: "Dar seguimiento al llenado, entrega y validación de actas, revisando la documentación docente" }
-      ]
-    }
-  ]
+  children: [] // Los datos reales se cargan del JSON que importaste
 };
 
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
@@ -180,16 +58,16 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (TAMAÑOS AMPLIADOS Y ESTILOS MEJORADOS)
+// 2. CONFIGURACIÓN D3.js (TAMAÑOS COMPACTOS Y OPTIMIZADOS)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// NUEVOS TAMAÑOS: 400x160 para contener descripciones largas
-const nodeWidth = 400; 
-const nodeHeight = 160; 
+// NUEVOS TAMAÑOS: Más compactos, mantienen scroll interno
+const nodeWidth = 300; 
+const nodeHeight = 120; 
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -209,22 +87,21 @@ function init() {
     filter.append("feDropShadow").attr("dx", "0").attr("dy", "4").attr("stdDeviation", "4").attr("flood-color", "#000").attr("flood-opacity", "0.2");
 
     g = svg.append("g");
-    zoom = d3.zoom().scaleExtent([0.2, 3]).on("zoom", (event) => g.attr("transform", event.transform));
+    zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
-    // Ajuste de márgenes para las nuevas dimensiones
+    // Espaciado ajustado para no generar mapas gigantes
     treeLayout = orientation === "horizontal" 
-        ? d3.tree().nodeSize([nodeHeight + 50, nodeWidth + 90]) 
-        : d3.tree().nodeSize([nodeWidth + 40, nodeHeight + 90]);
+        ? d3.tree().nodeSize([nodeHeight + 15, nodeWidth + 50]) 
+        : d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 50]);
 
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
     root.y0 = 0;
     
+    // MAGIA DE COMPRESIÓN: Colapsa todas las subramas al cargar la página
     if (root.children) {
-        root.children.forEach(d => {
-            if (d.children) d.children.forEach(collapseDeep);
-        });
+        root.children.forEach(collapseDeep); 
     }
     update(root);
     
@@ -233,8 +110,13 @@ function init() {
     svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.85));
 }
 
+// Función que esconde los hijos recursivamente
 function collapseDeep(d) {
-    if (d.children) { d._children = d.children; d._children.forEach(collapseDeep); d.children = null; }
+    if (d.children) { 
+        d._children = d.children; 
+        d._children.forEach(collapseDeep); 
+        d.children = null; 
+    }
 }
 
 function update(source) {
@@ -252,32 +134,30 @@ function update(source) {
         .attr("width", nodeWidth).attr("height", nodeHeight)
         .attr("x", -(nodeWidth/2)).attr("y", -(nodeHeight/2))
         .attr("rx", 8).attr("ry", 8)
-        .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR)
+        .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR) // Dorado si tiene hijos ocultos, Guinda si no
         .style("stroke", TERTIARY_COLOR).style("stroke-width", "2px").style("filter", "url(#drop-shadow)");
 
-    // CONTENEDOR HTML DEL NODO AMPLIADO
     const foDiv = nodeEnter.append("foreignObject")
         .attr("width", nodeWidth - 10).attr("height", nodeHeight - 10)
         .attr("x", -(nodeWidth/2) + 5).attr("y", -(nodeHeight/2) + 5)
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
-    // TEXTO DEL NODO CON SCROLL HABILITADO
+    // TEXTO DEL NODO (Fuente más pequeña y scroll interno)
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
         .style("justify-content", "center").style("text-align", "center")
         .style("color", "#ffffff").style("font-family", "'Noto Sans', sans-serif")
-        .style("font-size", "12px").style("font-weight", "500")
-        .style("padding", "8px 12px")
-        .style("overflow-y", "auto") // Permite el scroll si hay exceso de texto
+        .style("font-size", "11px").style("font-weight", "500")
+        .style("padding", "6px 10px")
+        .style("overflow-y", "auto") 
         .html(d => d.data.name);
 
-    // BOTONES DE ACCIÓN (Aparecen solo si isAdmin === true)
     const actions = foDiv.append("div")
         .attr("class", "node-actions")
         .style("display", isAdmin ? "flex" : "none")
-        .style("justify-content", "center").style("gap", "15px").style("padding-bottom", "8px");
+        .style("justify-content", "center").style("gap", "15px").style("padding-bottom", "6px");
 
     actions.append("button").html("✏️").attr("title", "Editar").attr("class", "node-btn")
         .on("click", (event, d) => { event.stopPropagation(); promptEditNode(d); });
@@ -288,7 +168,6 @@ function update(source) {
     actions.append("button").html("❌").attr("title", "Eliminar nodo").attr("class", "node-btn")
         .on("click", (event, d) => { event.stopPropagation(); promptDeleteNode(d); });
 
-    // ACTUALIZAR NODOS
     const nodeUpdate = nodeEnter.merge(node);
     nodeUpdate.transition().duration(duration)
         .attr("transform", d => orientation === "horizontal" ? `translate(${d.y},${d.x})` : `translate(${d.x},${d.y})`);
@@ -320,6 +199,7 @@ function diagonal(s, d) {
         : `M ${s.x} ${s.y} C ${s.x} ${(s.y + d.y) / 2}, ${d.x} ${(s.y + d.y) / 2}, ${d.x} ${d.y}`;
 }
 
+// Función que expande o colapsa al dar clic
 function clickNode(event, d) {
     if (d.children) { d._children = d.children; d.children = null; } 
     else { d.children = d._children; d._children = null; }
@@ -376,7 +256,7 @@ document.getElementById('btn-guest-login').addEventListener('click', () => {
 
 document.getElementById('btn-admin-login').addEventListener('click', () => {
     const pass = document.getElementById('admin-pass-input').value.trim();
-    if (pass === "psique33") {
+    if (pass === "psique33" || pass === "lulut" || pass === "L0b0l0b0") {
         isAdmin = true;
         authScreen.classList.add('hidden');
         if (settingsFab) settingsFab.classList.remove('hidden'); 
