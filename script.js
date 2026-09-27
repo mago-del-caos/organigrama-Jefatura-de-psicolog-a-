@@ -180,16 +180,15 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (ESPACIADO OPTIMIZADO PARA A0)
+// 2. CONFIGURACIÓN D3.js (ESPACIADO ÓPTIMO Y ALINEACIÓN)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
 
-// TAMAÑO DE CAJAS
-const nodeWidth = 300; 
-const nodeHeight = 120; 
+const nodeWidth = 320; 
+const nodeHeight = 130; 
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -212,26 +211,21 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
-    // 🌟 AQUÍ ESTÁ LA MAGIA: Separación ENORME para aprovechar el póster A0
-    // [Espacio_Vertical, Espacio_Horizontal]
+    // Distancias balanceadas para que no se apachurre en A0
     treeLayout = orientation === "horizontal" 
-        ? d3.tree().nodeSize([nodeHeight + 80, nodeWidth + 250]) 
-        : d3.tree().nodeSize([nodeWidth + 80, nodeHeight + 250]);
+        ? d3.tree().nodeSize([nodeHeight + 25, nodeWidth + 90]) // Left-to-Right
+        : d3.tree().nodeSize([nodeWidth + 25, nodeHeight + 110]); // Top-to-Bottom
 
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
     root.y0 = 0;
     
-    // COLAPSA todas las subramas al cargar la página
-    if (root.children) {
-        root.children.forEach(collapseDeep); 
-    }
+    if (root.children) { root.children.forEach(collapseDeep); }
     update(root);
     
     let initialX = orientation === "horizontal" ? (width < 768 ? width/6 : width/4) : width/2;
     let initialY = orientation === "horizontal" ? height/2 : height/4;
-    // Reduje la escala inicial a 0.7 para que se siga viendo bien en monitores normales
-    svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.7));
+    svg.call(zoom.transform, d3.zoomIdentity.translate(initialX, initialY).scale(0.85));
 }
 
 function collapseDeep(d) {
@@ -262,13 +256,12 @@ function update(source) {
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
-    // TEXTO DEL NODO
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
         .style("justify-content", "center").style("text-align", "center")
         .style("color", "#ffffff").style("font-family", "'Noto Sans', sans-serif")
-        .style("font-size", "11px").style("font-weight", "500")
+        .style("font-size", "11.5px").style("font-weight", "500")
         .style("padding", "6px 10px")
         .style("overflow-y", "auto") 
         .html(d => d.data.name);
@@ -327,9 +320,7 @@ function clickNode(event, d) {
 // 3. FUNCIONES DE EDICIÓN
 function promptEditNode(d) {
     const newName = prompt("Editar nombre:", d.data.name);
-    if (newName !== null && newName.trim() !== "") {
-        d.data.name = newName.trim(); saveOrgData(); init(); 
-    }
+    if (newName !== null && newName.trim() !== "") { d.data.name = newName.trim(); saveOrgData(); init(); }
 }
 function promptAddChild(d) {
     const newName = prompt("Escribe el nombre del nuevo subnodo:");
@@ -407,7 +398,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ Y PESTAÑA DE PLOTEO
+// 6. LÓGICA DE INTERFAZ Y NUEVO MÉTODO PARA PLÓTER
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -428,13 +419,12 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// 🚀 MÉTODO DEFINITIVO: NUEVA PESTAÑA VECTORIAL DE PLOTEO
+// 🚀 MÉTODO DEFINITIVO DE EXPORTACIÓN (ALINEADO ARRIBA)
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("Generando Organigrama para Plóter A0...\n\nSe abrirá una NUEVA PESTAÑA con el mapa completo con mucha mayor separación entre áreas.\n\nEn la ventana de imprimir, selecciona:\n1. Destino: 'Guardar como PDF'\n2. Diseño: 'Horizontal'\n3. Gráficos de fondo: 'Activados'\n4. Márgenes: 'Ninguno'");
+        alert("🚨 IMPORTANTE: Antes de descargar, asegúrate de estar en la pestaña 'Organigrama Horizontal' para que el diseño fluya correctamente en tu póster A0.\n\nEn la ventana de imprimir, selecciona:\n1. Diseño: Horizontal\n2. Gráficos de fondo: Activados\n3. Márgenes: Ninguno");
 
-        // 1. Expandir TODO el organigrama automáticamente
         function expandAll(d) {
             if (d._children) { d.children = d._children; d._children = null; }
             if (d.children) { d.children.forEach(expandAll); }
@@ -442,29 +432,20 @@ if (downloadFab) {
         expandAll(root);
         update(root);
 
-        // 2. Dar tiempo a la animación (850ms)
         setTimeout(() => {
             const svgEl = document.querySelector('#tree-container svg');
             const gEl = svgEl.querySelector('g');
-            
-            // Medir el tamaño real matemático del mapa desplegado
             const bbox = gEl.getBBox();
             
-            // 3. Crear una copia exacta del SVG
             const clone = svgEl.cloneNode(true);
             
-            // 4. Ajustar el "Lente" (ViewBox) de la copia para que enfoque solo el mapa
             clone.setAttribute('viewBox', `${bbox.x - 50} ${bbox.y - 50} ${bbox.width + 100} ${bbox.height + 100}`);
             clone.setAttribute('width', '100%');
-            clone.setAttribute('height', '100%');
+            clone.setAttribute('height', 'auto'); 
             
-            // Quitar el Zoom/Pan manual para que la nueva ventana asuma el control
             clone.querySelector('g').removeAttribute('transform');
-            
-            // Ocultar botones de edición para la impresión
             clone.querySelectorAll('.node-actions').forEach(el => el.style.display = 'none');
 
-            // 5. Abrir una nueva pestaña limpia y meter el mapa
             const printWin = window.open('', '_blank');
             printWin.document.write(`
                 <!DOCTYPE html>
@@ -474,11 +455,12 @@ if (downloadFab) {
                     <title>Organigrama_Ploteo_A0</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
-                        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: white; font-family: 'Noto Sans', sans-serif; overflow: hidden; }
-                        svg { width: 100vw; height: 100vh; display: block; }
+                        /* Ajuste: Se eliminó height 100% para que el contenido se ancle arriba de forma natural */
+                        body, html { margin: 0; padding: 0; width: 100%; background: white; font-family: 'Noto Sans', sans-serif; display: block; }
+                        svg { width: 100vw; height: auto; display: block; margin-top: 0; }
                         @media print {
                             @page { size: landscape; margin: 0; }
-                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block; }
                         }
                     </style>
                 </head>
@@ -492,9 +474,7 @@ if (downloadFab) {
             `);
             printWin.document.close();
 
-            // 6. Restaurar el mapa en tu página original para que siga viéndose bien
             init(); 
-
         }, 850); 
     });
 }
