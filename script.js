@@ -17,150 +17,132 @@ if ('serviceWorker' in navigator) {
 
 let isAdmin = false;
 
-// 1. DATOS DEL ORGANIGRAMA Y SINCRONIZACIÓN (LICENCIATURA EN PSICOLOGÍA A DISTANCIA)
+// 1. DATOS DEL ORGANIGRAMA (ESTRUCTURA DETALLADA Y PULIDA)
 const DEFAULT_ORG_DATA = {
-    name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
-    children: [
+  name: "Jefatura de Carrera: Mtra. Laura Lázaro Felipe",
+  children: [
+    {
+      name: "Apoyo 1. Atención en la planeación académico-curricular",
+      children: [
+        { name: "Dar seguimiento al desarrollo, revisión y actualización de los componentes académicos de las UCA (áreas Educativa, Clínica, Social y Laboral)" },
+        { name: "Planear actividades académicas curriculares y extracurriculares (coloquios y encuentros)" },
+        { name: "Apoyar en el desarrollo de coloquios y encuentros académicos de la Licenciatura" },
         {
-            name: "Apoyo 1. Planeación y seguimiento académico-curricular",
-            children: [
-                {
-                    name: "Desarrollo, revisión y actualización de UCA",
-                    children: [
-                        { name: "Verificar congruencia con Modelo Educativo y normativa" },
-                        { name: "Análisis de perfiles y integración de equipos especialistas (Educativa, Clínica, Social y Laboral)" },
-                        { name: "Desarrollo de contenidos, problemas prototípicos, incidentes críticos, tareas y foros" },
-                        { name: "Reactivos para extraordinarios, exámenes finales y recuperación" }
-                    ]
-                },
-                {
-                    name: "Planear actividades y coloquios académicos",
-                    children: [
-                        { name: "Coloquios, encuentros académicos y talleres curriculares/extracurriculares" },
-                        { name: "Espacios de presentación, intercambio y reflexión de proyectos de investigación" }
-                    ]
-                },
-                {
-                    name: "Proponer la oferta de UCA y grupos",
-                    children: [
-                        { name: "Revisión y propuesta de oferta de UCA por semestre" },
-                        { name: "Elaboración de cronogramas por módulos y unidades" }
-                    ]
-                },
-                {
-                    name: "Apoyo 1.1 Análisis de datos",
-                    children: [
-                        { name: "Informes trimestrales y anuales requeridos por la Universidad" },
-                        { name: "Análisis estadístico de resultados académicos (tendencias y áreas de atención)" },
-                        { name: "Reportes para toma de decisiones y cursos de recuperación intersemestral" },
-                        { name: "Metas cuantitativas y alineación (Plan Nac. Desarrollo, P.S. Ciencia y P.I. Rosario Castellanos)" }
-                    ]
-                }
-            ]
+          name: "Apoyo 1.1 Análisis de información académica",
+          children: [
+            { name: "Realizar informes trimestrales y anuales requeridos por la Universidad" },
+            { name: "Analizar la información estadística de resultados académicos para identificar tendencias y necesidades" },
+            { name: "Generar reportes como insumo para la toma de decisiones (cursos de recuperación académica intersemestral)" },
+            { name: "Sistematización y análisis para metas cuantitativas (Alineación con Plan Nacional de Desarrollo y Programa Institucional UNRC)" },
+            { name: "Revisar y proponer la oferta de UCA y grupos cada semestre para intersemestrales y exámenes extraordinarios" },
+            { name: "Revisar y proponer perfiles docentes para proyectos de prácticas profesionales" }
+          ]
+        },
+        { name: "Apoyo en la coordinación y diseño de diplomados de titulación para la Licenciatura en Psicología a Distancia" }
+      ]
+    },
+    {
+      name: "Apoyo 2. Acompañamiento docente (Inducción y fortalecimiento del modelo educativo)",
+      children: [
+        { name: "Colaborar en la proyección docente de cada ciclo escolar con base en la oferta académica" },
+        { name: "Identificar, valorar y seleccionar perfiles docentes acordes a los requerimientos y la modalidad a distancia" },
+        { name: "Colaborar en la asignación docente de cada semestre (UCA, grupos y perfiles)" },
+        { name: "Participar en la inducción a docentes de nuevo ingreso (operación académica, UCA, AVA)" },
+        { name: "Brindar apoyo a la Jefatura en la comunicación, seguimiento y acompañamiento de las y los docentes, contribuyendo a la atención oportuna de los procesos" },
+        { name: "Mantenerse atento a la Guía docente para realizar retroalimentación académica y realizar sesiones virtuales síncronas" },
+        { name: "Analizar, dar seguimiento y canalizar casos de incidencias en el desempeño docente (Supervisor)" }
+      ]
+    },
+    {
+      name: "Apoyo 3. Promover las estrategias 3R (Trayectoria académica, permanencia y atención)",
+      children: [
+        {
+          name: "Apoyo 3.1 Responsable de Seguimiento y Prevención del Abandono Académico",
+          children: [
+            { name: "Brindar atención presencial a estudiantes en sede GAM para dudas sobre UCA" },
+            { name: "Canalizar inquietudes sobre procesos de titulación y alternativas de acreditación" },
+            { name: "Proponer estrategias de permanencia del estudiante en la UNRC" },
+            { name: "Dar seguimiento a la trayectoria académica del estudiante" },
+            { name: "Dar seguimiento a través de estrategias de recuperación a estudiantes identificados por el SAME en estatus \"Nunca\" e \"Inactivos\"" },
+            { name: "Identificar señales de riesgo de abandono académico mediante el seguimiento en AVA, y brindar orientación para favorecer la permanencia" },
+            { name: "Brindar atención y canalización presencial a estudiantes en sede GAM para dudas académicas y administrativas" },
+            { name: "Coordinar y desarrollar sesiones de atención estudiantil los días viernes, prioritariamente a estudiantes \"Nunca\" e \"Inactivo\"" },
+            { name: "Registrar casos atendidos y dar seguimiento a los acuerdos o acciones establecidas con cada estudiante" },
+            { name: "Identificar causas de riesgo académico y canalizar los casos a las áreas pertinentes" },
+            { name: "Elaborar reportes periódicos para la Jefatura sobre casos atendidos, seguimiento y resultados" }
+          ]
         },
         {
-            name: "Apoyo 2. Gestión y acompañamiento docente",
-            children: [
-                {
-                    name: "Proyección, selección y asignación docente",
-                    children: [
-                        { name: "Proyección por ciclo escolar según oferta académica y grupos" },
-                        { name: "Identificación, valoración y selección de perfiles profesiográficos en modalidad a distancia" },
-                        { name: "Asignación docente semestral de UCA y grupos" }
-                    ]
-                },
-                {
-                    name: "Inducción y capacitación de nuevo ingreso",
-                    children: [
-                        { name: "Inducción sobre operación académica, características de UCA y trabajo en el AVA" },
-                        { name: "Coordinación de canales de comunicación y seguimiento institucional" }
-                    ]
-                },
-                {
-                    name: "Promover estrategias 3R y uso de guías institucionales",
-                    children: [
-                        { name: "Necesidades de fortalecimiento de la práctica docente" },
-                        { name: "Uso de la guía institucional para retroalimentación académica y sesiones virtuales" },
-                        { name: "Revisión de perfiles para prácticas profesionales y cursos de recuperación" }
-                    ]
-                },
-                {
-                    name: "Canalizar incidencias del desempeño docente",
-                    children: [
-                        { name: "Análisis, seguimiento y canalización de casos con incidencias en funciones docentes" }
-                    ]
-                }
-            ]
+          name: "Apoyo 3.2 Riesgo y Comunicación",
+          children: [
+            { name: "Realizar mesas de trabajo en coordinación con un responsable docente para la elaboración de materiales" },
+            { name: "Dar seguimiento a la aplicación del instrumento de medición para evaluar recursos educativos de Retención, Recuperación y Reforzamiento (3R)" },
+            { name: "Analizar resultados, detectar áreas de oportunidad y proponer ajustes o mejoras de recursos" },
+            { name: "Generar reportes de seguimiento para brindar información objetiva en la toma de decisiones y mejora continua" }
+          ]
         },
         {
-            name: "Apoyo 3. Trayectoria académica, permanencia y atención",
-            children: [
-                {
-                    name: "Atención presencial (Sede GAM) y estrategias de permanencia",
-                    children: [
-                        { name: "Atención presencial a estudiantes para resolución de dudas sobre UCA" },
-                        { name: "Canalización sobre procesos de titulación y alternativas de acreditación" },
-                        { name: "Propuesta de estrategias de permanencia y seguimiento a trayectoria académica" }
-                    ]
-                },
-                {
-                    name: "Seguimiento de estrategias de retención y regularización",
-                    children: [
-                        { name: "Seguimiento a estudiantes en riesgo a partir de información del SAME" },
-                        { name: "Promoción de estrategias 3R y elaboración de materiales de apoyo docente" },
-                        { name: "Creación y seguimiento de canal exclusivo para estudiantes de primer semestre" }
-                    ]
-                },
-                {
-                    name: "Estudiantes en riesgo y formación especializada",
-                    children: [
-                        { name: "Acompañamiento en creación de cursos de formación docente y extracurriculares" },
-                        { name: "Seguimiento a UCA de estancias laborales y seminarios de titulación (Planes 2020 y 2023)" }
-                    ]
-                }
-            ]
-        },
-        {
-            name: "Apoyo 4. Prácticas profesionales, egreso y titulación",
-            children: [
-                { name: "Canalización en procesos de titulación a las áreas correspondientes" },
-                { name: "Aplicación y seguimiento de formularios para estudiantes de 8° semestre" },
-                { name: "Seguimiento a estrategias de egreso, servicio social, idiomas y grupos de WhatsApp" }
-            ]
-        },
-        {
-            name: "Apoyo 5. Atención y seguimiento de incidencias",
-            children: [
-                { name: "Revisión y gestión continua de correos electrónicos de la Licenciatura" },
-                { name: "Identificación de solicitudes, determinación de rutas de atención y respuesta directa" },
-                { name: "Organización y sistematización del registro de atención brindada" },
-                { name: "Seguimiento a incidencias de estudiantes reportadas por Tutoría (LPSI-LAD)" }
-            ]
-        },
-        {
-            name: "Apoyo 6. Acompañamiento, comunicación y seguimiento",
-            children: [
-                { name: "Construcción de indicadores y aplicación de formularios de seguimiento a grupos" },
-                { name: "Análisis y triangulación de datos para identificar patrones de comportamiento" },
-                { name: "Elaboración de reportes de monitoreo para medidas emergentes o remediales" },
-                { name: "Implementación de campañas de alfabetización en nuevas tecnologías en psicología" }
-            ]
-        },
-        {
-            name: "Gestores Académicos / SAME (Supervisor de Acompañamiento)",
-            children: [
-                { name: "Seguimiento docente: ingreso a plataforma, plan de trabajo, foros y tareas auténticas" },
-                { name: "Integración de concentrado actualizado (nombre, correo, teléfono, UCA y grupos)" },
-                { name: "Brindar información inicial del curso, canales de comunicación y acompañamiento" },
-                { name: "Revisar disponibilidad de recursos, foros sin restricciones y envío de fechas clave por módulo" },
-                { name: "Monitoreo semanal de acceso docente e incidencias técnicas y operativas" },
-                { name: "Supervisión de recuperación, retención y regularización de alumnos en riesgo (reportado al área 3R)" },
-                { name: "Verificación de evaluaciones en tiempo y forma, retroalimentación y entrega de formatos por unidad" },
-                { name: "Descarga de calificadores al cierre del bloque, gráficas de asistencia y corroboración de calificaciones" },
-                { name: "Dar seguimiento al llenado, entrega, validación de actas y revisión de documentación docente" }
-            ]
+          name: "Apoyo 3.3 Reforzamiento en Cursos académicos, Estancias y Titulación",
+          children: [
+            { name: "Acompañar los procesos de creación de cursos de formación docente y extracurriculares" },
+            { name: "Acompañamiento a UCA de estancias laborales y seminarios de titulación (Planes 2020 y 2023)" },
+            { name: "Crear mesas de trabajo entre docentes expertos para estandarizar estructura, objetivos y rúbricas de nuevos cursos" },
+            { name: "Programar sesiones de unificación de criterios para asesores de titulación (procesos metodológicos acordes)" },
+            { name: "Programar sesiones periódicas de seguimiento de prácticas profesionales para acompañar a docentes y garantizar metas" }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      name: "Apoyo 4. Apoyo responsable en estrategias de egreso y titulación",
+      children: [
+        { name: "Diseñar y proponer estrategias de acompañamiento para el egreso y la titulación" },
+        { name: "Elaborar y aplicar formularios de diagnóstico para identificar necesidades, avances y dificultades de egreso" },
+        { name: "Organizar sesiones informativas con estudiantes para conocer necesidades y brindar orientación sobre titulación" },
+        { name: "Dar seguimiento a estudiantes próximos a egresar identificando factores que puedan retrasar el proceso" },
+        { name: "Sistematizar información de formularios y sesiones para identificar áreas de oportunidad" },
+        { name: "Mantener comunicación con áreas correspondientes para canalizar casos que requieran atención específica" },
+        { name: "Elaborar reportes periódicos sobre las acciones realizadas y avances en las estrategias de egreso" }
+      ]
+    },
+    {
+      name: "Apoyo 5. Atención de incidencias (identificadas y reportadas por tutores)",
+      children: [
+        { name: "Revisar y atender de manera continua los correos de la Licenciatura en Psicología a Distancia" },
+        { name: "Identificar solicitud y determinar ruta de atención (canalización al apoyo, SAME, Jefatura o área competente)" },
+        { name: "Dar respuesta directa a los correos correspondientes a la Licenciatura" },
+        { name: "Organizar y sistematizar los correos atendidos para contar con registro" },
+        { name: "Canalizar incidencias reportadas por Tutoría a LPSI-LAD y reportar resultados a la Jefatura" }
+      ]
+    },
+    {
+      name: "Apoyo 6. Acompañamiento, comunicación y seguimiento",
+      children: [
+        { name: "Construcción de indicadores y aplicación de formularios para identificar necesidades académicas" },
+        { name: "Realizar análisis y triangulación de datos (patrones de comportamiento de estudiantes)" },
+        { name: "Integrar y analizar resultados de formularios conforme a indicadores y estatus" },
+        { name: "Elaboración de reportes de seguimiento y monitoreo académico para medidas emergentes/remediales" },
+        { name: "Implementar campañas y estrategias de alfabetización en nuevas tecnologías en psicología" }
+      ]
+    },
+    {
+      name: "SAME (Supervisor de Acompañamiento para la Mejora Educativa)",
+      children: [
+        { name: "Seguimiento docente mediante revisión de ingreso a plataforma, plan de trabajo, foros y tareas auténticas" },
+        { name: "Integrar concentrado (nombre, correo, teléfono, UCA y grupos) para comunicación y seguimiento" },
+        { name: "Brindar información inicial sobre el curso, canales de comunicación y acompañamiento" },
+        { name: "Revisar que foros, tareas, plan de trabajo y recursos estén disponibles (sin restricciones de tiempo)" },
+        { name: "Enviar al inicio de cada módulo información sobre fechas relevantes y procesos académicos" },
+        { name: "Monitorear semanalmente el acceso de los docentes a la plataforma y seguimiento a incidencias" },
+        { name: "Supervisar acciones de recuperación, retención y regularización (remitir info a Trayectoria y Permanencia)" },
+        { name: "Verificar evaluaciones en tiempo y forma y emitir retroalimentación cuando sea necesario" },
+        { name: "Integrar y entregar el formato de seguimiento correspondiente a cada unidad" },
+        { name: "Descargar los calificadores al cierre del bloque y tomar captura de gráficas de asistencia" },
+        { name: "Corroborar las calificaciones registradas una vez cerrada la plataforma" },
+        { name: "Dar seguimiento al llenado, entrega y validación de actas, revisando la documentación docente" }
+      ]
+    }
+  ]
 };
 
 let orgData = JSON.parse(localStorage.getItem('org_lad_data')) || DEFAULT_ORG_DATA;
@@ -198,14 +180,16 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (BOTONES INTEGRADOS)
+// 2. CONFIGURACIÓN D3.js (TAMAÑOS AMPLIADOS Y ESTILOS MEJORADOS)
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
 const duration = 750;
 const container = document.getElementById("tree-container");
-const nodeWidth = 340; 
-const nodeHeight = 100; 
+
+// NUEVOS TAMAÑOS: 400x160 para contener descripciones largas
+const nodeWidth = 400; 
+const nodeHeight = 160; 
 
 const PRIMARY_COLOR = "#9F2241"; 
 const SECONDARY_COLOR = "#BC955C"; 
@@ -228,7 +212,10 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.2, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
-    treeLayout = orientation === "horizontal" ? d3.tree().nodeSize([nodeHeight + 40, nodeWidth + 80]) : d3.tree().nodeSize([nodeWidth + 20, nodeHeight + 80]);
+    // Ajuste de márgenes para las nuevas dimensiones
+    treeLayout = orientation === "horizontal" 
+        ? d3.tree().nodeSize([nodeHeight + 50, nodeWidth + 90]) 
+        : d3.tree().nodeSize([nodeWidth + 40, nodeHeight + 90]);
 
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
@@ -268,27 +255,29 @@ function update(source) {
         .style("fill", d => d._children ? SECONDARY_COLOR : PRIMARY_COLOR)
         .style("stroke", TERTIARY_COLOR).style("stroke-width", "2px").style("filter", "url(#drop-shadow)");
 
-    // CONTENEDOR HTML DEL NODO (FLEXBOX)
+    // CONTENEDOR HTML DEL NODO AMPLIADO
     const foDiv = nodeEnter.append("foreignObject")
-        .attr("width", nodeWidth - 20).attr("height", nodeHeight - 10)
-        .attr("x", -(nodeWidth/2) + 10).attr("y", -(nodeHeight/2) + 5)
+        .attr("width", nodeWidth - 10).attr("height", nodeHeight - 10)
+        .attr("x", -(nodeWidth/2) + 5).attr("y", -(nodeHeight/2) + 5)
         .append("xhtml:div")
         .style("display", "flex").style("flex-direction", "column").style("height", "100%");
 
-    // TEXTO DEL NODO
+    // TEXTO DEL NODO CON SCROLL HABILITADO
     foDiv.append("div")
         .attr("class", "node-text")
         .style("flex-grow", "1").style("display", "flex").style("align-items", "center")
         .style("justify-content", "center").style("text-align", "center")
         .style("color", "#ffffff").style("font-family", "'Noto Sans', sans-serif")
-        .style("font-size", "13px").style("font-weight", "500")
+        .style("font-size", "12px").style("font-weight", "500")
+        .style("padding", "8px 12px")
+        .style("overflow-y", "auto") // Permite el scroll si hay exceso de texto
         .html(d => d.data.name);
 
     // BOTONES DE ACCIÓN (Aparecen solo si isAdmin === true)
     const actions = foDiv.append("div")
         .attr("class", "node-actions")
         .style("display", isAdmin ? "flex" : "none")
-        .style("justify-content", "center").style("gap", "15px").style("padding-bottom", "5px");
+        .style("justify-content", "center").style("gap", "15px").style("padding-bottom", "8px");
 
     actions.append("button").html("✏️").attr("title", "Editar").attr("class", "node-btn")
         .on("click", (event, d) => { event.stopPropagation(); promptEditNode(d); });
@@ -387,7 +376,7 @@ document.getElementById('btn-guest-login').addEventListener('click', () => {
 
 document.getElementById('btn-admin-login').addEventListener('click', () => {
     const pass = document.getElementById('admin-pass-input').value.trim();
-    if (pass === "psique33" || pass === "lulut" || pass === "L0b0l0b0") {
+    if (pass === "psique33") {
         isAdmin = true;
         authScreen.classList.add('hidden');
         if (settingsFab) settingsFab.classList.remove('hidden'); 
@@ -450,7 +439,7 @@ if (btnImportJson && importFileInput) {
 const btnResetOrg = document.getElementById('btn-reset-org');
 if (btnResetOrg) {
     btnResetOrg.addEventListener('click', () => {
-        if (confirm("¿Estás seguro de restaurar el organigrama original de la Jefatura? Se perderán los cambios en la nube.")) {
+        if (confirm("¿Estás seguro de restaurar el organigrama original? Se perderán los cambios en la nube.")) {
             localStorage.removeItem('org_lad_data');
             orgData = JSON.parse(JSON.stringify(DEFAULT_ORG_DATA));
             saveOrgData();
