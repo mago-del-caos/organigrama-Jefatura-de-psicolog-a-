@@ -180,7 +180,7 @@ async function saveOrgData() {
     }
 }
 
-// 2. CONFIGURACIÓN D3.js (ESPACIADO ÓPTIMO Y ALINEACIÓN)
+// 2. CONFIGURACIÓN D3.js
 let orientation = "horizontal"; 
 let svg, g, root, treeLayout, zoom;
 let i = 0;
@@ -211,10 +211,9 @@ function init() {
     zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
     svg.call(zoom);
     
-    // Distancias balanceadas para que no se apachurre en A0
     treeLayout = orientation === "horizontal" 
-        ? d3.tree().nodeSize([nodeHeight + 25, nodeWidth + 90]) // Left-to-Right
-        : d3.tree().nodeSize([nodeWidth + 25, nodeHeight + 110]); // Top-to-Bottom
+        ? d3.tree().nodeSize([nodeHeight + 25, nodeWidth + 90]) 
+        : d3.tree().nodeSize([nodeWidth + 25, nodeHeight + 110]); 
 
     root = d3.hierarchy(orgData, d => d.children);
     root.x0 = height / 2;
@@ -398,7 +397,7 @@ if (btnResetOrg) {
     });
 }
 
-// 6. LÓGICA DE INTERFAZ Y NUEVO MÉTODO PARA PLÓTER
+// 6. LÓGICA DE INTERFAZ
 const downloadFab = document.getElementById('download-png-fab');
 
 function setActiveTab(evt) {
@@ -419,11 +418,11 @@ function showOrgTab(orient, evt) {
     setTimeout(() => init(), 100);
 }
 
-// 🚀 MÉTODO DEFINITIVO DE EXPORTACIÓN (ALINEADO ARRIBA)
+// 🚀 SOLUCIÓN DEFINITIVA: FORZAR UNA SOLA PÁGINA DE PDF
 if (downloadFab) {
     downloadFab.addEventListener('click', (e) => {
         e.preventDefault();
-        alert("🚨 IMPORTANTE: Antes de descargar, asegúrate de estar en la pestaña 'Organigrama Horizontal' para que el diseño fluya correctamente en tu póster A0.\n\nEn la ventana de imprimir, selecciona:\n1. Diseño: Horizontal\n2. Gráficos de fondo: Activados\n3. Márgenes: Ninguno");
+        alert("Generando Organigrama en una SOLA PÁGINA sin cortes...\n\nAl abrirse la ventana de imprimir asegúrate de seleccionar:\n1. Destino: 'Guardar como PDF'\n2. Gráficos de fondo: 'Activados'\n3. Márgenes: 'Ninguno'\n\nEl archivo resultante será un PDF gigante e ininterrumpido.");
 
         function expandAll(d) {
             if (d._children) { d.children = d._children; d._children = null; }
@@ -435,32 +434,48 @@ if (downloadFab) {
         setTimeout(() => {
             const svgEl = document.querySelector('#tree-container svg');
             const gEl = svgEl.querySelector('g');
+            
+            // Medir el área exacta
             const bbox = gEl.getBBox();
+            
+            // Agregar 100px de aire alrededor
+            const finalWidth = Math.ceil(bbox.width + 100);
+            const finalHeight = Math.ceil(bbox.height + 100);
             
             const clone = svgEl.cloneNode(true);
             
-            clone.setAttribute('viewBox', `${bbox.x - 50} ${bbox.y - 50} ${bbox.width + 100} ${bbox.height + 100}`);
-            clone.setAttribute('width', '100%');
-            clone.setAttribute('height', 'auto'); 
+            clone.setAttribute('viewBox', `${bbox.x - 50} ${bbox.y - 50} ${finalWidth} ${finalHeight}`);
+            clone.setAttribute('width', `${finalWidth}px`);
+            clone.setAttribute('height', `${finalHeight}px`);
             
             clone.querySelector('g').removeAttribute('transform');
             clone.querySelectorAll('.node-actions').forEach(el => el.style.display = 'none');
 
+            // Abrir pestaña limpia
             const printWin = window.open('', '_blank');
             printWin.document.write(`
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Organigrama_Ploteo_A0</title>
+                    <title>Organigrama_Ploteo_Unico</title>
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
-                        /* Ajuste: Se eliminó height 100% para que el contenido se ancle arriba de forma natural */
-                        body, html { margin: 0; padding: 0; width: 100%; background: white; font-family: 'Noto Sans', sans-serif; display: block; }
-                        svg { width: 100vw; height: auto; display: block; margin-top: 0; }
+                        body, html { 
+                            margin: 0; padding: 0; 
+                            width: ${finalWidth}px; 
+                            height: ${finalHeight}px; 
+                            background: white; 
+                            font-family: 'Noto Sans', sans-serif; 
+                            overflow: hidden; 
+                            display: block; 
+                        }
+                        svg { width: 100%; height: 100%; display: block; }
+                        
+                        /* MAGIA: Fuerza al PDF a ser de 1 sola página del tamaño exacto del mapa */
                         @media print {
-                            @page { size: landscape; margin: 0; }
-                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block; }
+                            @page { size: ${finalWidth}px ${finalHeight}px; margin: 0; }
+                            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         }
                     </style>
                 </head>
