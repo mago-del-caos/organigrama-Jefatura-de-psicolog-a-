@@ -201,3 +201,47 @@ body.dark-mode .big-text { color: var(--secondary-color); }
     background: rgba(255, 255, 255, 0.4);
     transform: scale(1.15);
 }
+
+/* ==========================================
+   REGLAS PARA PLOTEO / IMPRESIÓN EN PDF (ALTA CALIDAD)
+   ========================================== */
+@page {
+    size: landscape; /* Fuerza la orientación horizontal */
+    margin: 0mm;     /* Sin márgenes para aprovechar el espacio del plóter */
+}
+
+@media print {
+    /* Fuerza a la impresora a respetar los colores exactos y el fondo de las cajas */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Resetea la página a color blanco si el modo oscuro está activo */
+    body, html {
+        background: white !important;
+        color: black !important;
+    }
+    
+    /* Oculta toda la interfaz que no queremos imprimir */
+    header, .tabs, .hint-bar, .fab, .modal-overlay, .auth-overlay, .node-actions {
+        display: none !important;
+    }
+    
+    /* Expande el contenedor de D3.js para que ocupe todo el papel sin generar barras de scroll */
+    #tree-container {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        background: white !important; /* Limpia el patrón de puntitos de fondo */
+        overflow: visible !important;
+    }
+
+    /* Asegura que el SVG del árbol aproveche todo el tamaño */
+    #tree-container svg {
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
