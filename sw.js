@@ -1,4 +1,4 @@
-const CACHE_NAME = 'organigrama-lad-v1.3.5'; 
+const CACHE_NAME = 'organigrama-lad-v1.3.6'; 
 
 const urlsToCache = [
     './',
